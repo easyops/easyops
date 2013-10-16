@@ -32,19 +32,22 @@ public class Shell {
 		new JCommander(argument, args);
 		Thread st = new Thread(srt);
 		st.start();
-		
-		agent = new Agent(argument);
-		agent.check();
-		agent.start();
-		
+		try {
+			agent = new Agent(argument);
+			agent.check();
+			agent.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		try {
 			Thread.currentThread().join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void shutdown(){
+
+	public static void shutdown() {
 		agent.shutdown();
 		synchronized (srt) {
 			srt.notify();

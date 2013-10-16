@@ -1,22 +1,34 @@
 package easyops.eoa.ui.arguments;
 
+import java.util.List;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import easyops.eoa.ui.arguments.validation.CommandValidation;
 
-@Parameters(separators = "=")  
+@Parameters(separators = "=")
 public class Argument {
-	@Parameter(names="-command", validateWith=CommandValidation.class)
+	@Parameter(names = "-command", validateWith = CommandValidation.class)
 	public String command;
-	@Parameter(names="-id")
+	@Parameter(names = "-id")
 	public String id;
-	@Parameter(names="-zkserver")
+	@Parameter(names = "-zkserver")
 	public String zkserver;
-	@Parameter(names="-dbserver")
-	public String dbserver;
-	@Parameter(names="-zkSessionTimeout")
+	@Parameter(names = "-db")
+	public String db;
+	@Parameter(names = "-zkSessionTimeout")
 	public int zkSessionTimeout;
-	@Parameter(names="-dbcheckInterval")
+	@Parameter(names = "-dbcheckInterval")
 	public int dbCheckInteral;
+
+	public List<DBDomain> dbList;
+
+	public void rebuild() {
+		Gson g = new Gson();
+		dbList = g.fromJson(db, new TypeToken<List<DBDomain>>() {
+		}.getType());
+	}
 }

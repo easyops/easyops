@@ -1,5 +1,6 @@
 package easyops.eoa.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.zookeeper.CreateMode;
@@ -7,6 +8,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
 public class ZNode {
@@ -26,6 +28,8 @@ public class ZNode {
 	public byte[] data;
 	public Stat stat;
 	public String name;
+	public CreateMode createMode = CreateMode.EPHEMERAL;
+	public ArrayList<ACL> acl = Ids.OPEN_ACL_UNSAFE;
 
 	public ZNode(ZooKeeper zk) {
 		this.root = this;
@@ -42,18 +46,19 @@ public class ZNode {
 		this.zk = pnode.zk;
 		this.path = pnode.path + "/" + name;
 	}
-
-	public boolean createE() {
-		return create(CreateMode.EPHEMERAL);
+	
+	public ZNode addChild(String name){
+		ZNode node = new ZNode(this, name);
+		return node;
 	}
 
-	public boolean createP() {
-		return create(CreateMode.PERSISTENT);
+	public boolean create() {
+		return create(createMode);
 	}
 
 	private boolean create(CreateMode createMode) {
 		try {
-			zk.create(path, data, Ids.OPEN_ACL_UNSAFE, createMode);
+			zk.create(path, data, this.acl, createMode);
 		} catch (KeeperException e) {
 			e.printStackTrace();
 			return false;
