@@ -1,4 +1,4 @@
-package easyops.eoa.util;
+package easyops.eoa.resource;
 
 import java.util.List;
 
@@ -10,6 +10,13 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.Stat;
 
 public class ZNode {
+	
+	public enum SOURCE {
+		LOCAL,
+		REMOTE
+
+	}
+	
 	public ZNode pnode;
 	public ZNode root;
 	public ZooKeeper zk;
