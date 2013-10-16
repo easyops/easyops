@@ -2,6 +2,7 @@ package easyops.eoa;
 
 import java.io.IOException;
 
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -38,6 +39,8 @@ public class Agent implements Watcher {
 	private void buildDBDomain(ZNode node) {
 		for (DBDomain db : arg.dbList) {
 			ZNode domain = node.addChild(db.name);
+			domain.createMode = CreateMode.PERSISTENT;
+			domain.create();
 			for (DBServer server : db.serverlist) {
 				domain.addChild(server.getMark());
 			}
