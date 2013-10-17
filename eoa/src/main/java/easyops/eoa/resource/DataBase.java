@@ -1,5 +1,6 @@
 package easyops.eoa.resource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -20,5 +21,13 @@ public class DataBase extends BaseResource{
 		Gson g = new Gson();
 		dbList = g.fromJson(dbParameter, new TypeToken<List<DBDomain>>() {
 		}.getType());
+	}
+	
+	public List<DBServer> getAllServerList(){
+		List<DBServer> list = new  ArrayList<DBServer>();
+		for(DBDomain domain : dbList){
+			list.addAll(domain.getAllServerList());
+		}
+		return list;
 	}
 }

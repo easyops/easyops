@@ -1,11 +1,7 @@
 package easyops.eoa.ui.arguments;
 
-import java.util.List;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import easyops.eoa.ui.arguments.validation.CommandValidation;
 
@@ -23,4 +19,8 @@ public class Argument {
 	public int zkSessionTimeout;
 	@Parameter(names = "-dbcheckInterval")
 	public int dbCheckInteral;
+	@Parameter(names = "-dbCheckMaxTry")
+	public int dbCheckMaxTry;
+	@Parameter(names="failCodes")
+	public int[] failCodes;
 }

@@ -1,5 +1,6 @@
 package easyops.eoa.resource;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,18 +12,22 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
-public class ZNode  extends BaseResource{
-	
+public class ZNode extends BaseResource {
+
+	private static final long serialVersionUID = 1L;
+
+	public static String STATUS = "status";
+	public static String CHECH_IN_STAMP = "check_in_stamp";
+
 	public enum SOURCE {
-		LOCAL,
-		REMOTE
+		LOCAL, REMOTE
 
 	}
-	
+
 	public ZNode pnode;
 	public ZNode root;
 	public ZooKeeper zk;
-	public List<ZNode> children;
+	public List<ZNode> children = new ArrayList<ZNode>();
 	public SOURCE souce = SOURCE.LOCAL;
 	public String path;
 	public byte[] data;
@@ -46,8 +51,8 @@ public class ZNode  extends BaseResource{
 		this.zk = pnode.zk;
 		this.path = pnode.path + "/" + name;
 	}
-	
-	public ZNode addChild(String name){
+
+	public ZNode addChild(String name) {
 		ZNode node = new ZNode(this, name);
 		return node;
 	}
@@ -106,5 +111,32 @@ public class ZNode  extends BaseResource{
 			stat = null;
 		}
 		return stat;
+	}
+
+	public void setData(String s) {
+		try {
+			data = s.getBytes(CharCode);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean save() {
+		try {
+			Stat s = zk.exists(path, false);
+			if (s == null) {
+				create();
+			} else {
+				zk.setData(path, data, s.getVersion());
+			}
+		} catch (KeeperException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+
 	}
 }

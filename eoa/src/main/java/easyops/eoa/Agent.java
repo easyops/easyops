@@ -2,12 +2,14 @@ package easyops.eoa;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
+import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBPartition;
 import easyops.eoa.resource.DBServer;
@@ -43,7 +45,12 @@ public class Agent implements Watcher {
 	}
 
 	private void startMoniterDB() {
-
+		List<DBServer> list = db.getAllServerList();
+		for(DBServer server: list){
+			Timer timer = new Timer();
+			DBMonitor m = new DBMonitor(server, arg.dbCheckMaxTry, arg.failCodes);
+			timer.schedule(m, 1000, arg.dbCheckInteral);
+		}
 	}
 
 	private void buildZK() throws IOException {
