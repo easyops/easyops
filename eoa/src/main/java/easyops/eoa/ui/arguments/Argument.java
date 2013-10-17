@@ -23,12 +23,4 @@ public class Argument {
 	public int zkSessionTimeout;
 	@Parameter(names = "-dbcheckInterval")
 	public int dbCheckInteral;
-
-	public List<DBDomain> dbList;
-
-	public void rebuild() {
-		Gson g = new Gson();
-		dbList = g.fromJson(db, new TypeToken<List<DBDomain>>() {
-		}.getType());
-	}
 }

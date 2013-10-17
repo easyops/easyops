@@ -11,7 +11,7 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
-public class ZNode {
+public class ZNode  extends BaseResource{
 	
 	public enum SOURCE {
 		LOCAL,
