@@ -17,7 +17,10 @@ public class ZNode extends BaseResource {
 	private static final long serialVersionUID = 1L;
 
 	public static String STATUS = "status";
-	public static String CHECH_IN_STAMP = "check_in_stamp";
+	public static String CHECK_IN_STAMP = "check_in_stamp";
+	public static String DBSERVER_LIST = "servers";
+	public static String ACTIVE_LOCK = "lock";
+	public static String MASTER = "master";
 
 	public enum SOURCE {
 		LOCAL, REMOTE
@@ -28,7 +31,7 @@ public class ZNode extends BaseResource {
 	public ZNode root;
 	public ZooKeeper zk;
 	public List<ZNode> children = new ArrayList<ZNode>();
-	public SOURCE souce = SOURCE.LOCAL;
+	public SOURCE source = SOURCE.LOCAL;
 	public String path;
 	public byte[] data;
 	public Stat stat;
@@ -42,6 +45,18 @@ public class ZNode extends BaseResource {
 		this.zk = zk;
 		this.path = "/";
 		this.name = "/";
+		try {
+			stat = zk.exists(path, false);
+			if (stat == null) {
+				this.source = SOURCE.LOCAL;
+			} else {
+				this.source = SOURCE.REMOTE;
+			}
+		} catch (KeeperException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ZNode(ZNode pnode, String name) {
@@ -50,6 +65,18 @@ public class ZNode extends BaseResource {
 		pnode.children.add(this);
 		this.zk = pnode.zk;
 		this.path = pnode.path + "/" + name;
+		try {
+			stat = zk.exists(path, false);
+			if (stat == null) {
+				this.source = SOURCE.LOCAL;
+			} else {
+				this.source = SOURCE.REMOTE;
+			}
+		} catch (KeeperException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ZNode addChild(String name) {
@@ -138,5 +165,74 @@ public class ZNode extends BaseResource {
 		}
 		return true;
 
+	}
+
+	public ZNode getChild(String name) {
+		if (name == null) {
+			return null;
+		}
+		for (ZNode node : children) {
+			if (name.equals(node.name)) {
+				return node;
+			}
+		}
+		return null;
+	}
+
+	public boolean delete() {
+		try {
+			Stat s = zk.exists(path, false);
+			if (s != null) {
+				zk.delete(path, s.getVersion());
+			}
+			return true;
+		} catch (KeeperException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
+	public boolean exists() {
+		try {
+			Stat s = zk.exists(path, false);
+			this.stat = s;
+			return true;
+		} catch (KeeperException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
+	public boolean sychronize() {
+		try {
+			Stat s = new Stat();
+			this.data = zk.getData(CharCode, false, s);
+			this.stat = s;
+			return true;
+		} catch (KeeperException e) {
+			e.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+
+	public String getStringData() {
+		try {
+			return new String(data, CharCode);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

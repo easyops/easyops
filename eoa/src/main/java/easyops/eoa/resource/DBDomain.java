@@ -9,7 +9,7 @@ public class DBDomain extends BaseResource {
 
 	private static final long serialVersionUID = 1L;
 	public String name;
-	public boolean isPartition;
+	public boolean isPartition = false;
 	@Expose
 	public List<DBPartition> partitionList;
 	@Expose

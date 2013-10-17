@@ -9,6 +9,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 
+import easyops.eoa.monitor.ActiveLockWatcher;
 import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBPartition;
@@ -40,15 +41,16 @@ public class Agent implements Watcher {
 	}
 
 	private void startMoniterZK() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	private void startMoniterDB() {
 		List<DBServer> list = db.getAllServerList();
-		for(DBServer server: list){
+		for (DBServer server : list) {
 			Timer timer = new Timer();
-			DBMonitor m = new DBMonitor(server, arg.dbCheckMaxTry, arg.failCodes);
+			DBMonitor m = new DBMonitor(server, arg.dbCheckMaxTry,
+					arg.failCodes, arg.masterAutoActive);
 			timer.schedule(m, 1000, arg.dbCheckInteral);
 		}
 	}
@@ -89,11 +91,13 @@ public class Agent implements Watcher {
 
 	private void buildDBServer(List<DBServer> serverList, ZNode pnode) {
 
+		pnode = pnode.addChild(ZNode.DBSERVER_LIST);
 		for (DBServer server : serverList) {
 			ZNode znode = pnode.addChild(server.getMark());
 			znode.data = server.toJsonBytes();
 			znode.create();
 			server.znode = znode;
+			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}
 
 	}

@@ -23,4 +23,8 @@ public class Argument {
 	public int dbCheckMaxTry;
 	@Parameter(names="failCodes")
 	public int[] failCodes;
+	@Parameter(names="masterAutoActive")
+	public boolean masterAutoActive;
+	@Parameter(names="freezeTime")
+	public int freezeTime;
 }
