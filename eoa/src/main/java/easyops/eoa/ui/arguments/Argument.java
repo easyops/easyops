@@ -13,7 +13,7 @@ public class Argument {
 	public String id;
 	@Parameter(names = "-zkserver")
 	public String zkserver;
-	@Parameter(names = "-db")
+	@Parameter(names = "-db", description = "{\"dbList\":[{\"name\":\"basedb\",\"isPartition\":false,\"serverList\":[{\"address\":\"10.10.10.10\",\"user\":\"dbmonitor\",\"password\":\"dbmonitor123\",\"port\":5000,\"role\":\"MASTER\",\"status\":\"Down\",\"freezeStamp\":0}]}]}")
 	public String db;
 	@Parameter(names = "-zkSessionTimeout")
 	public int zkSessionTimeout;
@@ -21,10 +21,10 @@ public class Argument {
 	public int dbCheckInteral;
 	@Parameter(names = "-dbCheckMaxTry")
 	public int dbCheckMaxTry;
-	@Parameter(names="failCodes")
+	@Parameter(names = "-failCodes", converter = IntArrayConerter.class)
 	public int[] failCodes;
-	@Parameter(names="masterAutoActive")
-	public boolean masterAutoActive;
-	@Parameter(names="freezeTime")
+	@Parameter(names = "-masterAutoActive")
+	public boolean masterAutoActive = false;
+	@Parameter(names = "-freezeTime")
 	public int freezeTime;
 }

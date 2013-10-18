@@ -8,14 +8,21 @@ import com.google.gson.annotations.Expose;
 public class DBServer  extends BaseResource{
 
 	private static final long serialVersionUID = 1L;
-	public String address;
-	public String user;
-	public String password;
-	public int port;
-	public DBRole role = DBRole.SLAVE;
-	public DBStatus status = DBStatus.Down;
-	public long freezeStamp = 0;
 	@Expose
+	public String address;
+	@Expose
+	public String user;
+	@Expose
+	public String password;
+	@Expose
+	public int port;
+	@Expose
+	public DBRole role = DBRole.SLAVE;
+	@Expose
+	public DBStatus status = DBStatus.Down;
+	@Expose
+	public long freezeStamp = 0;
+	
 	public Watcher lockWatch;
 	
 	public String getMark(){
@@ -33,4 +40,6 @@ public class DBServer  extends BaseResource{
 	public void setLockWatcher( Watcher watcher){
 		this.lockWatch = watcher;
 	}
+	
+	
 }

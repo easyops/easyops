@@ -3,11 +3,14 @@ package easyops.eoa;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.ZooKeeper.States;
 
 import easyops.eoa.monitor.ActiveLockWatcher;
 import easyops.eoa.monitor.DBMonitor;
@@ -24,10 +27,12 @@ public class Agent implements Watcher {
 	private ZooKeeper zk;
 	private Argument arg;
 	private DataBase db;
+	private CountDownLatch latch;
 
 	public Agent(Argument arg) {
 		this.arg = arg;
-		this.db = new DataBase(this.arg.db);
+		this.db = DataBase.buildDB(this.arg.db);
+
 	}
 
 	public void check() {
@@ -41,7 +46,6 @@ public class Agent implements Watcher {
 	}
 
 	private void startMoniterZK() {
-		
 
 	}
 
@@ -56,12 +60,28 @@ public class Agent implements Watcher {
 	}
 
 	private void buildZK() throws IOException {
+		latch = new CountDownLatch(1);
 		zk = new ZooKeeper(arg.zkserver, arg.zkSessionTimeout, this);
+		waitUntilConnected();
 		zroot = new ZNode(zk);
 		ZNode node = zroot.addChild("runtime");
-		node = node.addChild("basebase");
+		node.create();
+		node = node.addChild("database");
+		node.create();
 		node = node.addChild("mysql");
+		node.create();
 		buildDBDomain(node);
+	}
+
+	private void waitUntilConnected() {
+		if (States.CONNECTING == zk.getState()) {
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+				throw new IllegalStateException(e);
+			}
+		}
+
 	}
 
 	private void buildDBDomain(ZNode node) {
@@ -90,11 +110,13 @@ public class Agent implements Watcher {
 	}
 
 	private void buildDBServer(List<DBServer> serverList, ZNode pnode) {
-
+		
 		pnode = pnode.addChild(ZNode.DBSERVER_LIST);
+		pnode.create();
 		for (DBServer server : serverList) {
 			ZNode znode = pnode.addChild(server.getMark());
 			znode.data = server.toJsonBytes();
+			znode.createMode = CreateMode.EPHEMERAL;
 			znode.create();
 			server.znode = znode;
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
@@ -103,11 +125,19 @@ public class Agent implements Watcher {
 	}
 
 	public void shutdown() {
-
+		try {
+			zk.close();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void process(WatchedEvent event) {
+
+		if (event.getState() == KeeperState.SyncConnected) {
+			latch.countDown();
+		}
 
 	}
 

@@ -8,7 +8,9 @@ import com.google.gson.annotations.Expose;
 public class DBDomain extends BaseResource {
 
 	private static final long serialVersionUID = 1L;
+	@Expose
 	public String name;
+	@Expose
 	public boolean isPartition = false;
 	@Expose
 	public List<DBPartition> partitionList;
@@ -50,5 +52,6 @@ public class DBDomain extends BaseResource {
 		}
 		return serverList;
 	}
+
 
 }

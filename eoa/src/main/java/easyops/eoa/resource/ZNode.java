@@ -7,14 +7,12 @@ import java.util.List;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
-public class ZNode extends BaseResource {
-
-	private static final long serialVersionUID = 1L;
+public class ZNode {
 
 	public static String STATUS = "status";
 	public static String CHECK_IN_STAMP = "check_in_stamp";
@@ -36,7 +34,7 @@ public class ZNode extends BaseResource {
 	public byte[] data;
 	public Stat stat;
 	public String name;
-	public CreateMode createMode = CreateMode.EPHEMERAL;
+	public CreateMode createMode = CreateMode.PERSISTENT;
 	public ArrayList<ACL> acl = Ids.OPEN_ACL_UNSAFE;
 
 	public ZNode(ZooKeeper zk) {
@@ -64,7 +62,11 @@ public class ZNode extends BaseResource {
 		this.pnode = pnode;
 		pnode.children.add(this);
 		this.zk = pnode.zk;
-		this.path = pnode.path + "/" + name;
+		if (pnode == this.root) {
+			this.path = pnode.path + name;
+		} else {
+			this.path = pnode.path + "/" + name;
+		}
 		try {
 			stat = zk.exists(path, false);
 			if (stat == null) {
@@ -90,6 +92,10 @@ public class ZNode extends BaseResource {
 
 	private boolean create(CreateMode createMode) {
 		try {
+			stat = zk.exists(path, false);
+			if (stat != null) {
+				return true;
+			}
 			zk.create(path, data, this.acl, createMode);
 		} catch (KeeperException e) {
 			e.printStackTrace();
@@ -142,7 +148,7 @@ public class ZNode extends BaseResource {
 
 	public void setData(String s) {
 		try {
-			data = s.getBytes(CharCode);
+			data = s.getBytes(BaseResource.CharCode);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -214,7 +220,7 @@ public class ZNode extends BaseResource {
 	public boolean sychronize() {
 		try {
 			Stat s = new Stat();
-			this.data = zk.getData(CharCode, false, s);
+			this.data = zk.getData(BaseResource.CharCode, false, s);
 			this.stat = s;
 			return true;
 		} catch (KeeperException e) {
@@ -229,7 +235,7 @@ public class ZNode extends BaseResource {
 
 	public String getStringData() {
 		try {
-			return new String(data, CharCode);
+			return new String(data, BaseResource.CharCode);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;

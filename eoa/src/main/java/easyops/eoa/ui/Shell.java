@@ -1,5 +1,7 @@
 package easyops.eoa.ui;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.beust.jcommander.JCommander;
 
 import easyops.eoa.Agent;
@@ -9,49 +11,28 @@ public class Shell {
 
 	private static Argument argument = new Argument();
 	private static Agent agent;
-
-	private static class ShellRunTime implements Runnable {
-
-		@Override
-		public void run() {
-			synchronized (Shell.srt) {
-				try {
-					Shell.srt.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-
-		}
-
-	}
-
-	private static ShellRunTime srt = new ShellRunTime();
+	private static CountDownLatch latch = new CountDownLatch(1);
 
 	public static void main(String[] args) {
 		new JCommander(argument, args);
-		Thread st = new Thread(srt);
-		st.start();
+		
 		try {
 			agent = new Agent(argument);
 			agent.check();
 			agent.start();
+			latch.await();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
+		}finally{
+			agent.shutdown();
 		}
-		try {
-			Thread.currentThread().join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+
 	}
 
 	public static void shutdown() {
 		agent.shutdown();
-		synchronized (srt) {
-			srt.notify();
-		}
+		latch.countDown();
 
 	}
 
