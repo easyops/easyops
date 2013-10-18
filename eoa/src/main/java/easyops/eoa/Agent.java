@@ -12,6 +12,8 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 
+import easyops.eoa.controller.DBControllerFactory;
+import easyops.eoa.controller.IDBController;
 import easyops.eoa.monitor.ActiveLockWatcher;
 import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
@@ -53,11 +55,15 @@ public class Agent implements Watcher {
 		List<DBServer> list = db.getAllServerList();
 		for (DBServer server : list) {
 			Timer timer = new Timer();
-			DBMonitor m = new DBMonitor(server, arg.dbCheckMaxTry,
-					arg.failCodes, arg.masterAutoActive);
+			IDBController controller = DBControllerFactory.getController();
+			controller.init(server, arg);
+			
+			DBMonitor m = new DBMonitor(controller,server, arg.masterAutoActive);
 			timer.schedule(m, 1000, arg.dbCheckInteral);
 		}
 	}
+
+
 
 	private void buildZK() throws IOException {
 		latch = new CountDownLatch(1);

@@ -3,15 +3,22 @@ package easyops.eoa.test.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.beust.jcommander.JCommander;
 
 import easyops.eoa.resource.DataBase;
+import easyops.eoa.ui.RunMode;
 import easyops.eoa.ui.Shell;
 import easyops.eoa.ui.arguments.Argument;
 
 public class TestShell {
+	
+	@Before
+	public void setup(){
+		Shell.runMode = RunMode.Testing;
+	}
 
 	@Test
 	public void testVersion() {

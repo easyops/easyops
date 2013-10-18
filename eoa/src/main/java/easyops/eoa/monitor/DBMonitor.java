@@ -7,115 +7,40 @@ import java.util.TimerTask;
 
 import org.apache.zookeeper.CreateMode;
 
+import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
 import easyops.eoa.resource.ZNode;
+import easyops.eoa.ui.Shell;
 
 public class DBMonitor extends TimerTask {
 
 	DBServer server;
-	Connection conn;
-	int timeout;
-	int[] failCodes;
-	int maxTry;
 	boolean masterAutoActive;
+	IDBController controller;
 
-	public DBMonitor(DBServer dbserver, int checkTimeout, int[] failCodes,
+	public DBMonitor(IDBController controller, DBServer dbserver,
 			boolean masterAutoActive) {
 		this.server = dbserver;
-		this.timeout = checkTimeout;
-		this.failCodes = failCodes;
+		this.controller = controller;
 		this.masterAutoActive = masterAutoActive;
 	}
 
 	@Override
 	public void run() {
 		try {
-			checkDB();
+			controller.checkDB();
+			if (controller.isValid()) {
+				reportRunning();
+			} else {
+				reportDown(controller.getMessage());
+			}
 
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 
-	}
-
-	private void checkDB() {
-		checkDB(0);
-	}
-
-	private boolean isFailCode(int code) {
-		for (int fc : failCodes) {
-			if (code == fc) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void checkDB(int count) {
-		if (conn == null) {
-			try {
-				Class.forName("com.mysql.jdbc.Driver");
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				Thread.currentThread().interrupt();
-				return;
-			}
-			try {
-				conn = DriverManager.getConnection(
-						"jdbc:mysql://localhost:port", server.user,
-						server.getPassword());
-			} catch (SQLException e) {
-				e.printStackTrace();
-				if (isFailCode(e.getErrorCode())) {
-					if (count >= maxTry) {
-						reportDown("check connection error : " + e.getMessage()
-								+ " try " + count);
-						return;
-					} else {
-						checkDB(count + 1);
-						return;
-					}
-				}
-			}
-		}
-
-		if (conn == null) {
-			if (count >= maxTry) {
-				reportDown("Connection is not valid! try  " + count);
-				return;
-			} else {
-				checkDB(count + 1);
-				return;
-			}
-		} else {
-			try {
-				if (conn.isValid(timeout)) {
-					reportRunning();
-					return;
-				} else {
-					if (count >= maxTry) {
-						reportDown("Connection is not valid! try " + count);
-						return;
-					} else {
-						checkDB(count + 1);
-						return;
-					}
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-				if (isFailCode(e.getErrorCode())) {
-					if (count >= maxTry) {
-						reportDown("check connection error : " + e.getMessage()
-								+ " try " + count);
-						return;
-					} else
-						checkDB(count + 1);
-					return;
-				}
-			}
-		}
 	}
 
 	private void reportDown(String message) {
@@ -166,12 +91,12 @@ public class DBMonitor extends TimerTask {
 			}
 		}
 	}
-	
-	private void reportStatus(String status){
+
+	private void reportStatus(String status) {
 		reportStatus(server.znode, status);
-		if(server.role == DBRole.MASTER){
+		if (server.role == DBRole.MASTER) {
 			ZNode mnode = server.znode.pnode.pnode.getChild(ZNode.MASTER);
-			if(mnode == null){
+			if (mnode == null) {
 				mnode = server.znode.pnode.pnode.addChild(ZNode.MASTER);
 				mnode.createMode = CreateMode.PERSISTENT;
 				mnode.setData(server.getMark());

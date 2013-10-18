@@ -12,6 +12,8 @@ public class Shell {
 	private static Argument argument = new Argument();
 	private static Agent agent;
 	private static CountDownLatch latch = new CountDownLatch(1);
+	public static RunMode runMode = RunMode.Product;
+	
 
 	public static void main(String[] args) {
 		new JCommander(argument, args);

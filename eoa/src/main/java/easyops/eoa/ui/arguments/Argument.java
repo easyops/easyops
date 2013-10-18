@@ -27,4 +27,6 @@ public class Argument {
 	public boolean masterAutoActive = false;
 	@Parameter(names = "-freezeTime")
 	public int freezeTime;
+	@Parameter(names = "-dbCheckTimeout")
+	public int dbCheckTimeout;
 }
