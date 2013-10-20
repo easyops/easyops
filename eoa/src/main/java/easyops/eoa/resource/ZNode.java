@@ -235,8 +235,21 @@ public class ZNode {
 	}
 
 	public String getStringData() {
+		return bytes2String(data);
+	}
+
+	public static String bytes2String(byte[] data) {
 		try {
 			return new String(data, BaseResource.CharCode);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static byte[] string2Bytes(String s) {
+		try {
+			return s.getBytes(BaseResource.CharCode);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;

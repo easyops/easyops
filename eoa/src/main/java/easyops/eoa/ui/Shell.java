@@ -32,7 +32,7 @@ public class Shell {
 
 	}
 
-	private static void init(String[] args) {
+	public static void init(String[] args) {
 		DBControllerFactory.clazz = MySQLController.class;
 		new JCommander(argument, args);
 
