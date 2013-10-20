@@ -8,9 +8,7 @@ import easyops.eoa.resource.DBServer;
 import easyops.eoa.ui.Shell;
 import easyops.eoa.ui.arguments.Argument;
 
-public class MySQLController implements IDBController {
-	private boolean valid;
-	private String message;
+public class MySQLController extends BaseDBController implements IDBController {
 
 	private Connection conn;
 	private int timeout;
@@ -29,22 +27,6 @@ public class MySQLController implements IDBController {
 
 	private String user;
 	private String password;
-
-	public boolean isValid() {
-		return valid;
-	}
-
-	public void setValid(boolean valid) {
-		this.valid = valid;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
 
 	@Override
 	public void checkDB() {
@@ -186,7 +168,8 @@ public class MySQLController implements IDBController {
 		this.password = password;
 	}
 
-	public void init(DBServer server, Argument arg) {
+	public void init(DBServer dbserver, Argument arg) {
+		this.server = dbserver;
 		setFailCodes(arg.failCodes);
 		setMaxTry(arg.dbCheckMaxTry);
 		setTimeout(arg.dbCheckTimeout);
@@ -194,6 +177,12 @@ public class MySQLController implements IDBController {
 		setAddress(server.address);
 		setPassword(server.getPassword());
 		setUser(server.user);
+	}
+
+	@Override
+	public void shutDownDB() {
+		
+		
 	}
 
 }

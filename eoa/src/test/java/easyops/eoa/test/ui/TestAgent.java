@@ -89,7 +89,7 @@ public class TestAgent extends TestZKBase {
 			e.printStackTrace();
 			fail();
 		}
-		agent.waitUnitDBMonitorInit();
+		agent.waitUnitOnceDBMonitor();
 		return agent;
 	}
 

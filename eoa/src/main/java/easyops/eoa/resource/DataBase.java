@@ -16,12 +16,17 @@ public class DataBase extends BaseResource {
 	public List<DBDomain> dbList;
 
 	public static DataBase buildDB(String dbParameter) {
-		if(dbParameter==null || dbParameter.length()==0){
+		if (dbParameter == null || dbParameter.length() == 0) {
 			return new DataBase();
 		}
+		DataBase db = DataBase.fromJson(dbParameter);
+		return db;
+	}
+
+	public static DataBase fromJson(String json) {
 		Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
 				.create();
-		DataBase db = g.fromJson(dbParameter, new TypeToken<DataBase>() {
+		DataBase db = g.fromJson(json, new TypeToken<DataBase>() {
 		}.getType());
 		return db;
 	}

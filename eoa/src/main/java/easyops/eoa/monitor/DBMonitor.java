@@ -18,11 +18,11 @@ public class DBMonitor extends TimerTask {
 	private long runCount = 0;
 
 	public DBMonitor(IDBController controller, DBServer dbserver,
-			CountDownLatch dbMonitorInitLatch, boolean masterAutoActive) {
+			 boolean masterAutoActive) {
 		this.server = dbserver;
 		this.controller = controller;
 		this.masterAutoActive = masterAutoActive;
-		this.dbMonitorInitLatch = dbMonitorInitLatch;
+
 	}
 
 	@Override
@@ -34,10 +34,11 @@ public class DBMonitor extends TimerTask {
 			} else {
 				reportDown(controller.getMessage());
 			}
-			if (runCount == 0) {
+			if(dbMonitorInitLatch!=null){
 				dbMonitorInitLatch.countDown();
+				dbMonitorInitLatch = null;
 			}
-			runCount++;
+			setRunCount(getRunCount() + 1);
 
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -102,6 +103,19 @@ public class DBMonitor extends TimerTask {
 	private boolean isNoLock() {
 		ZNode lockNode = server.znode.pnode.pnode.getChild(ZNode.ACTIVE_LOCK);
 		return lockNode == null || (lockNode.exists() && lockNode.stat == null);
+	}
+	
+	public void restartOneMonitor(CountDownLatch dbMonitorInitLatch){
+		this.dbMonitorInitLatch = dbMonitorInitLatch;
+		
+	}
+
+	public long getRunCount() {
+		return runCount;
+	}
+
+	public void setRunCount(long runCount) {
+		this.runCount = runCount;
 	}
 
 }

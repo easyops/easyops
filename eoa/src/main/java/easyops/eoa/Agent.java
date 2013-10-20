@@ -29,8 +29,11 @@ public class Agent implements Watcher {
 
 	private ZNode zroot;
 	private ZooKeeper zk;
-	private CountDownLatch dbMonitorInitLatch;
+	private  CountDownLatch dbMonitorInitLatch;
 	private List<Timer> dbTimers = new ArrayList<Timer>();
+	public List<IDBController> dbControllers = new ArrayList<IDBController>();
+	private List<DBServer> dbServers;
+	private List<DBMonitor> dbMonitors = new ArrayList<DBMonitor>();
 
 	public ZooKeeper getZk() {
 		return zk;
@@ -65,15 +68,17 @@ public class Agent implements Watcher {
 	}
 
 	private void startMoniterDB() {
-		List<DBServer> list = db.getAllServerList();
-		dbMonitorInitLatch = new CountDownLatch(list.size());
-		for (DBServer server : list) {
+		dbServers = db.getAllServerList();
+		restartOnceDBMonitor();
+		for (DBServer server : dbServers) {
 			Timer timer = new Timer();
 			IDBController controller = DBControllerFactory.getController();
 			controller.init(server, arg);
-
-			DBMonitor m = new DBMonitor(controller, server, dbMonitorInitLatch,
+			dbControllers.add(controller);
+			DBMonitor m = new DBMonitor(controller, server,
 					arg.masterAutoActive);
+			dbMonitors.add(m);
+			m.restartOneMonitor(dbMonitorInitLatch);
 			timer.schedule(m, 1000, arg.dbCheckInteral);
 			dbTimers.add(timer);
 		}
@@ -103,8 +108,15 @@ public class Agent implements Watcher {
 		}
 
 	}
+	
+	public void restartOnceDBMonitor(){
+		dbMonitorInitLatch = new CountDownLatch(dbServers.size());
+		for(DBMonitor m : dbMonitors){
+			m.restartOneMonitor(dbMonitorInitLatch);
+		}
+	}
 
-	public void waitUnitDBMonitorInit() {
+	public void waitUnitOnceDBMonitor() {
 		try {
 			dbMonitorInitLatch.await();
 		} catch (InterruptedException e) {
@@ -179,7 +191,7 @@ public class Agent implements Watcher {
 
 	public void shutdown() {
 		try {
-			for(Timer timer : dbTimers){
+			for (Timer timer : dbTimers) {
 				timer.cancel();
 			}
 			zk.close();

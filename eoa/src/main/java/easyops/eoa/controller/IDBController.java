@@ -8,4 +8,6 @@ public interface IDBController {
 	public boolean isValid();
 	public String getMessage();
 	public void init(DBServer server, Argument arg);
+	public DBServer getServer();
+	public void shutDownDB();
 }
