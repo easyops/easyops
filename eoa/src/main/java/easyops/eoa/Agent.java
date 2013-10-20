@@ -1,6 +1,7 @@
 package easyops.eoa;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
@@ -29,6 +30,7 @@ public class Agent implements Watcher {
 	private ZNode zroot;
 	private ZooKeeper zk;
 	private CountDownLatch dbMonitorInitLatch;
+	private List<Timer> dbTimers = new ArrayList<Timer>();
 
 	public ZooKeeper getZk() {
 		return zk;
@@ -73,6 +75,7 @@ public class Agent implements Watcher {
 			DBMonitor m = new DBMonitor(controller, server, dbMonitorInitLatch,
 					arg.masterAutoActive);
 			timer.schedule(m, 1000, arg.dbCheckInteral);
+			dbTimers.add(timer);
 		}
 	}
 
@@ -176,6 +179,9 @@ public class Agent implements Watcher {
 
 	public void shutdown() {
 		try {
+			for(Timer timer : dbTimers){
+				timer.cancel();
+			}
 			zk.close();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
