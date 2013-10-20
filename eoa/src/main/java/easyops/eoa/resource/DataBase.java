@@ -3,6 +3,8 @@ package easyops.eoa.resource;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.netty.util.internal.StringUtil;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -16,6 +18,9 @@ public class DataBase extends BaseResource {
 	public List<DBDomain> dbList;
 
 	public static DataBase buildDB(String dbParameter) {
+		if(dbParameter==null || dbParameter.length()==0){
+			return new DataBase();
+		}
 		Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
 				.create();
 		DataBase db = g.fromJson(dbParameter, new TypeToken<DataBase>() {

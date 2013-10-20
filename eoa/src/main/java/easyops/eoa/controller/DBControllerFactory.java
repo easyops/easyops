@@ -1,14 +1,20 @@
 package easyops.eoa.controller;
 
-import easyops.eoa.ui.RunMode;
-import easyops.eoa.ui.Shell;
 
 public class DBControllerFactory {
+	
+	public static Class<?> clazz;
+	
 	public static IDBController getController(){
-		if(Shell.runMode == RunMode.Product){
-			return new MySQLController();
-		}else{
-			return new SimuDBController();
-		}
+		try {
+			return  (IDBController)clazz.newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return null;
 	}
 }

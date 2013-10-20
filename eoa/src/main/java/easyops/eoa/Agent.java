@@ -27,6 +27,14 @@ public class Agent implements Watcher {
 
 	private ZNode zroot;
 	private ZooKeeper zk;
+	public ZooKeeper getZk() {
+		return zk;
+	}
+
+	public void setZk(ZooKeeper zk) {
+		this.zk = zk;
+	}
+
 	private Argument arg;
 	private DataBase db;
 	private CountDownLatch latch;

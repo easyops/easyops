@@ -5,6 +5,8 @@ import java.util.concurrent.CountDownLatch;
 import com.beust.jcommander.JCommander;
 
 import easyops.eoa.Agent;
+import easyops.eoa.controller.DBControllerFactory;
+import easyops.eoa.controller.MySQLController;
 import easyops.eoa.ui.arguments.Argument;
 
 public class Shell {
@@ -12,13 +14,11 @@ public class Shell {
 	private static Argument argument = new Argument();
 	private static Agent agent;
 	private static CountDownLatch latch = new CountDownLatch(1);
-	public static RunMode runMode = RunMode.Product;
-	
 
 	public static void main(String[] args) {
-		new JCommander(argument, args);
-		
+
 		try {
+			init(args);
 			agent = new Agent(argument);
 			agent.check();
 			agent.start();
@@ -26,9 +26,15 @@ public class Shell {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
-		}finally{
+		} finally {
 			agent.shutdown();
 		}
+
+	}
+
+	private static void init(String[] args) {
+		DBControllerFactory.clazz = MySQLController.class;
+		new JCommander(argument, args);
 
 	}
 
