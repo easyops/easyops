@@ -175,6 +175,11 @@ public class TestShell implements Watcher {
 			e.printStackTrace();
 			fail();
 		}
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 		ZooKeeper zk = agent.getZk();
 		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
 		try {
@@ -182,11 +187,12 @@ public class TestShell implements Watcher {
 			if (stat == null) {
 				fail();
 			}
-			path = "/runtime/database/mysql/basedb/servers/"+ZNode.MASTER;
+			path = "/runtime/database/mysql/basedb/"+ZNode.MASTER;
 			stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();
 			}
+			zk.close();
 
 		} catch (KeeperException e) {
 			e.printStackTrace();
@@ -195,6 +201,7 @@ public class TestShell implements Watcher {
 			e.printStackTrace();
 			fail();
 		}
+		
 
 	}
 

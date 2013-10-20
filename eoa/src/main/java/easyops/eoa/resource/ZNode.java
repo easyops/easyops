@@ -60,6 +60,7 @@ public class ZNode {
 	public ZNode(ZNode pnode, String name) {
 		this.root = pnode.root;
 		this.pnode = pnode;
+		this.name = name;
 		pnode.children.add(this);
 		this.zk = pnode.zk;
 		if (pnode == this.root) {

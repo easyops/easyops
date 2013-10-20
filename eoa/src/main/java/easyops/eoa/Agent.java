@@ -18,6 +18,7 @@ import easyops.eoa.monitor.ActiveLockWatcher;
 import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBPartition;
+import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DataBase;
 import easyops.eoa.resource.ZNode;
@@ -27,6 +28,8 @@ public class Agent implements Watcher {
 
 	private ZNode zroot;
 	private ZooKeeper zk;
+	private CountDownLatch dbMonitorInitLatch;
+
 	public ZooKeeper getZk() {
 		return zk;
 	}
@@ -61,17 +64,17 @@ public class Agent implements Watcher {
 
 	private void startMoniterDB() {
 		List<DBServer> list = db.getAllServerList();
+		dbMonitorInitLatch = new CountDownLatch(list.size());
 		for (DBServer server : list) {
 			Timer timer = new Timer();
 			IDBController controller = DBControllerFactory.getController();
 			controller.init(server, arg);
-			
-			DBMonitor m = new DBMonitor(controller,server, arg.masterAutoActive);
+
+			DBMonitor m = new DBMonitor(controller, server, dbMonitorInitLatch,
+					arg.masterAutoActive);
 			timer.schedule(m, 1000, arg.dbCheckInteral);
 		}
 	}
-
-
 
 	private void buildZK() throws IOException {
 		latch = new CountDownLatch(1);
@@ -96,6 +99,14 @@ public class Agent implements Watcher {
 			}
 		}
 
+	}
+
+	public void waitUnitDBMonitorInit() {
+		try {
+			dbMonitorInitLatch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void buildDBDomain(ZNode node) {
@@ -124,7 +135,7 @@ public class Agent implements Watcher {
 	}
 
 	private void buildDBServer(List<DBServer> serverList, ZNode pnode) {
-		
+
 		pnode = pnode.addChild(ZNode.DBSERVER_LIST);
 		pnode.create();
 		for (DBServer server : serverList) {
@@ -133,9 +144,34 @@ public class Agent implements Watcher {
 			znode.createMode = CreateMode.EPHEMERAL;
 			znode.create();
 			server.znode = znode;
+			if (server.role == DBRole.MASTER) {
+				ZNode mnode = server.znode.pnode.pnode.getChild(ZNode.MASTER);
+				if (noMaster(mnode)) {
+					if (mnode == null) {
+						mnode = server.znode.pnode.pnode.addChild(ZNode.MASTER);
+					}
+					mnode.createMode = CreateMode.PERSISTENT;
+					mnode.setData(server.getMark());
+					mnode.create();
+				}
+
+			}
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}
 
+	}
+
+	private boolean noMaster(ZNode mnode) {
+		boolean isNone = false;
+		if (mnode == null) {
+			isNone = true;
+		} else {
+			mnode.exists();
+			if (mnode.stat != null) {
+				isNone = true;
+			}
+		}
+		return isNone;
 	}
 
 	public void shutdown() {

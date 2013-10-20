@@ -3,8 +3,6 @@ package easyops.eoa.resource;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.netty.util.internal.StringUtil;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;

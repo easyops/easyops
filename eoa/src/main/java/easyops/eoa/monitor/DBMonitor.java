@@ -1,30 +1,28 @@
 package easyops.eoa.monitor;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.TimerTask;
-
-import org.apache.zookeeper.CreateMode;
+import java.util.concurrent.CountDownLatch;
 
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
 import easyops.eoa.resource.ZNode;
-import easyops.eoa.ui.Shell;
 
 public class DBMonitor extends TimerTask {
 
 	DBServer server;
 	boolean masterAutoActive;
 	IDBController controller;
+	private CountDownLatch dbMonitorInitLatch;
+	private long runCount = 0;
 
 	public DBMonitor(IDBController controller, DBServer dbserver,
-			boolean masterAutoActive) {
+			CountDownLatch dbMonitorInitLatch, boolean masterAutoActive) {
 		this.server = dbserver;
 		this.controller = controller;
 		this.masterAutoActive = masterAutoActive;
+		this.dbMonitorInitLatch = dbMonitorInitLatch;
 	}
 
 	@Override
@@ -36,6 +34,10 @@ public class DBMonitor extends TimerTask {
 			} else {
 				reportDown(controller.getMessage());
 			}
+			if (runCount == 0) {
+				dbMonitorInitLatch.countDown();
+			}
+			runCount++;
 
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -51,7 +53,9 @@ public class DBMonitor extends TimerTask {
 		} else {
 			server.status = DBStatus.Down;
 		}
-		reportStatus(DBStatus.getStatus(server.status) + message);
+		server.checkInStamp = System.currentTimeMillis();
+		server.znode.data = server.toJsonBytes();
+		server.znode.save();
 		if (server.status == DBStatus.Active2Down) {
 			ZNode lockNode = server.znode.pnode.pnode
 					.getChild(ZNode.ACTIVE_LOCK);
@@ -68,15 +72,18 @@ public class DBMonitor extends TimerTask {
 
 	private void reportRunning() {
 
-		if (server.status == DBStatus.Active
+		if (server.status != DBStatus.Active
 				|| server.status != DBStatus.Running) {
 			server.status = DBStatus.Running;
 		}
 
-		reportStatus(DBStatus.getStatus(server.status));
+		server.checkInStamp = System.currentTimeMillis();
+		server.znode.data = server.toJsonBytes();
+		server.znode.save();
 
 		if (server.status == DBStatus.Running && server.role == DBRole.MASTER) {
-			if (masterAutoActive) {
+
+			if (masterAutoActive || isNoLock()) {
 				ZNode lockNode = server.znode.pnode.pnode
 						.getChild(ZNode.ACTIVE_LOCK);
 				if (lockNode == null) {
@@ -92,41 +99,9 @@ public class DBMonitor extends TimerTask {
 		}
 	}
 
-	private void reportStatus(String status) {
-		reportStatus(server.znode, status);
-		if (server.role == DBRole.MASTER) {
-			ZNode mnode = server.znode.pnode.pnode.getChild(ZNode.MASTER);
-			if (mnode == null) {
-				mnode = server.znode.pnode.pnode.addChild(ZNode.MASTER);
-				mnode.createMode = CreateMode.PERSISTENT;
-				mnode.setData(server.getMark());
-				mnode.create();
-			}
-			reportStatus(mnode, status);
-		}
-	}
-
-	private void reportStatus(ZNode node, String status) {
-
-		ZNode snode = node.getChild(ZNode.STATUS);
-		ZNode cnode = node.getChild(ZNode.CHECK_IN_STAMP);
-		if (snode == null) {
-			snode = node.addChild(ZNode.STATUS);
-			snode.setData(status);
-			snode.create();
-		} else {
-			snode.setData(status);
-			snode.save();
-		}
-		if (cnode == null) {
-			cnode = node.addChild(ZNode.CHECK_IN_STAMP);
-			cnode.setData("" + System.currentTimeMillis());
-			cnode.create();
-		} else {
-			cnode.setData("" + System.currentTimeMillis());
-			cnode.save();
-		}
-
+	private boolean isNoLock() {
+		ZNode lockNode = server.znode.pnode.pnode.getChild(ZNode.ACTIVE_LOCK);
+		return lockNode == null || (lockNode.exists() && lockNode.stat == null);
 	}
 
 }

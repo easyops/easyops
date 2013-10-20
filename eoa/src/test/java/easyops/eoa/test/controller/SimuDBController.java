@@ -10,25 +10,23 @@ public class SimuDBController implements IDBController {
 
 	@Override
 	public void checkDB() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		return valid;
 	}
 
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Simulate a valid Connection";
 	}
 
 	@Override
 	public void init(DBServer server, Argument arg) {
-		// TODO Auto-generated method stub
+		
 
 	}
 

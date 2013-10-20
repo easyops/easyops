@@ -38,19 +38,19 @@ public class DBDomain extends BaseResource {
 	}
 
 	public List<DBServer> getAllServerList() {
-		List<DBServer> serverList = new ArrayList<DBServer>();
+		List<DBServer> retList = new ArrayList<DBServer>();
 		if (isPartition) {
 			for (DBPartition p : partitionList) {
 				for (DBServer s : p.serverlist) {
-					serverList.add(s);
+					retList.add(s);
 				}
 			}
 		} else {
-			for (DBServer s : serverList) {
-				serverList.add(s);
+			for (DBServer s : this.serverList) {
+				retList.add(s);
 			}
 		}
-		return serverList;
+		return retList;
 	}
 
 

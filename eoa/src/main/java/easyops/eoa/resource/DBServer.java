@@ -21,7 +21,9 @@ public class DBServer  extends BaseResource{
 	@Expose
 	public DBStatus status = DBStatus.Down;
 	@Expose
-	public long freezeStamp = 0;
+	public long freezeStamp = 0;	
+	@Expose
+	public long checkInStamp = 0;
 	
 	public Watcher lockWatch;
 	
