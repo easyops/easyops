@@ -4,7 +4,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.ZooKeeper.States;
 
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
