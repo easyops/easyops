@@ -1,6 +1,7 @@
 package easyops.eoa.test.ui;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.KeeperException;
@@ -27,11 +28,9 @@ public class TestZKBase implements Watcher {
 			zookeeper = new ZooKeeper(zkaddress, 1000, this);
 			latch = new CountDownLatch(1);
 			waitUntilConnected(zookeeper, latch);
-			Stat stat;
-
-			stat = zookeeper.exists("/rumtime", false);
+			Stat stat = zookeeper.exists("/runtime", false);
 			if (stat != null) {
-				zookeeper.delete("/runtime", stat.getVersion());
+				deleteAllNode("/runtime");
 			}
 		} catch (KeeperException e) {
 
@@ -70,5 +69,19 @@ public class TestZKBase implements Watcher {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public void deleteAllNode(String path){
+		try {
+			List<String> chilren = zookeeper.getChildren(path, false);
+			for(String p : chilren){
+				deleteAllNode(path + "/" + p);
+			}
+			zookeeper.delete(path, -1);
+		} catch (KeeperException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

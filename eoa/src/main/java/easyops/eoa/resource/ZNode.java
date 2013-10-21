@@ -220,9 +220,10 @@ public class ZNode {
 
 	public boolean sychronize() {
 		try {
-			Stat s = new Stat();
-			this.data = zk.getData(BaseResource.CharCode, false, s);
-			this.stat = s;
+			this.stat = zk.exists(path, false);
+			if (this.stat == null)
+				return true;
+			this.data = zk.getData(path, false, this.stat);
 			return true;
 		} catch (KeeperException e) {
 			e.printStackTrace();
@@ -254,5 +255,42 @@ public class ZNode {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static boolean lockMe(DBServer server) {
+		ZNode lockNode = server.getLockNode();
+		if (lockNode == null || lockNode.stat == null) {
+			lockNode = server.createLockNode();
+			lockNode.setData(server.getMark());
+			lockNode.createMode = CreateMode.EPHEMERAL;
+			if (lockNode.create()) {
+				server.setStatus(DBStatus.Active);
+			} else {
+				return false;
+			}
+		} else {
+			lockNode.setData(server.getMark());
+			lockNode.createMode = CreateMode.EPHEMERAL;
+			if (!lockNode.save()) {
+				return false;
+			} else {
+				server.setStatus(DBStatus.Active);
+			}
+		}
+		return true;
+	}
+
+	public static void unLockMe(DBServer server) {
+		ZNode lockNode = server.getLockNode();
+		if (lockNode != null) {
+			lockNode.sychronize();
+			if (lockNode.getStringData().equals(server.getMark())) {
+				lockNode.delete();
+				if (server.getStatus() == DBStatus.Active) {
+					server.setStatus(DBStatus.Running);
+				}
+			}
+		}
+
 	}
 }

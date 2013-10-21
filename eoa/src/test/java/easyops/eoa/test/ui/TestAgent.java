@@ -69,7 +69,7 @@ public class TestAgent extends TestZKBase {
 				fail();
 			}
 
-			agent.shutdown();
+			
 
 		} catch (KeeperException e) {
 			e.printStackTrace();
@@ -77,18 +77,22 @@ public class TestAgent extends TestZKBase {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			fail();
+		}finally{
+			agent.shutdown();
 		}
 
 	}
 
 	public static Agent startAgent(Argument arg) {
 		Agent agent = new Agent(arg);
+		
 		try {
 			agent.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
 		}
+
 		agent.waitUnitOnceDBMonitor();
 		return agent;
 	}

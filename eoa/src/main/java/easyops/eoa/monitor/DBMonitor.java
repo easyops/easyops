@@ -18,7 +18,7 @@ public class DBMonitor extends TimerTask {
 	private long runCount = 0;
 
 	public DBMonitor(IDBController controller, DBServer dbserver,
-			 boolean masterAutoActive) {
+			boolean masterAutoActive) {
 		this.server = dbserver;
 		this.controller = controller;
 		this.masterAutoActive = masterAutoActive;
@@ -34,7 +34,7 @@ public class DBMonitor extends TimerTask {
 			} else {
 				reportDown(controller.getMessage());
 			}
-			if(dbMonitorInitLatch!=null){
+			if (dbMonitorInitLatch != null) {
 				dbMonitorInitLatch.countDown();
 				dbMonitorInitLatch = null;
 			}
@@ -47,67 +47,48 @@ public class DBMonitor extends TimerTask {
 	}
 
 	private void reportDown(String message) {
-		if (server.status == DBStatus.Active) {
-			server.status = DBStatus.Active2Down;
-		} else if (server.status == DBStatus.Running) {
-			server.status = DBStatus.Running2Down;
+		if (server.getStatus() == DBStatus.Active) {
+			server.setStatus(DBStatus.Active2Down);
+		} else if (server.getStatus() == DBStatus.Running) {
+			server.setStatus(DBStatus.Running2Down);
 		} else {
-			server.status = DBStatus.Down;
+			server.setStatus(DBStatus.Down);
 		}
 		server.checkInStamp = System.currentTimeMillis();
 		server.znode.data = server.toJsonBytes();
 		server.znode.save();
-		if (server.status == DBStatus.Active2Down) {
-			ZNode lockNode = server.znode.pnode.pnode
-					.getChild(ZNode.ACTIVE_LOCK);
-			if (lockNode != null) {
-				lockNode.sychronize();
-				String mark = lockNode.getStringData();
-				if (server.getMark().equals(mark)) {
-					lockNode.delete();
-				}
-			}
-
+		if (server.getStatus() == DBStatus.Active2Down) {
+			ZNode.unLockMe(server);
 		}
 	}
 
 	private void reportRunning() {
 
-		if (server.status != DBStatus.Active
-				|| server.status != DBStatus.Running) {
-			server.status = DBStatus.Running;
+		if (server.getStatus() != DBStatus.Active
+				&& server.getStatus() != DBStatus.Running) {
+			server.setStatus(DBStatus.Running);
 		}
 
 		server.checkInStamp = System.currentTimeMillis();
 		server.znode.data = server.toJsonBytes();
-		server.znode.save();
-
-		if (server.status == DBStatus.Running && server.role == DBRole.MASTER) {
+		if (server.getStatus() == DBStatus.Running
+				&& server.role == DBRole.MASTER) {
 
 			if (masterAutoActive || isNoLock()) {
-				ZNode lockNode = server.znode.pnode.pnode
-						.getChild(ZNode.ACTIVE_LOCK);
-				if (lockNode == null) {
-					lockNode = server.znode.pnode.pnode
-							.addChild(ZNode.ACTIVE_LOCK);
-					lockNode.setData(server.getMark());
-					lockNode.create();
-				} else {
-					lockNode.setData(server.getMark());
-					lockNode.save();
-				}
+				ZNode.lockMe(server);
 			}
 		}
+		server.znode.save();
 	}
 
 	private boolean isNoLock() {
-		ZNode lockNode = server.znode.pnode.pnode.getChild(ZNode.ACTIVE_LOCK);
+		ZNode lockNode = server.getLockNode();
 		return lockNode == null || (lockNode.exists() && lockNode.stat == null);
 	}
-	
-	public void restartOneMonitor(CountDownLatch dbMonitorInitLatch){
+
+	public void restartOneMonitor(CountDownLatch dbMonitorInitLatch) {
 		this.dbMonitorInitLatch = dbMonitorInitLatch;
-		
+
 	}
 
 	public long getRunCount() {

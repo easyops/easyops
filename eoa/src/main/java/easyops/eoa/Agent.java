@@ -29,7 +29,7 @@ public class Agent implements Watcher {
 
 	private ZNode zroot;
 	private ZooKeeper zk;
-	private  CountDownLatch dbMonitorInitLatch;
+	private CountDownLatch dbMonitorInitLatch;
 	private List<Timer> dbTimers = new ArrayList<Timer>();
 	public List<IDBController> dbControllers = new ArrayList<IDBController>();
 	private List<DBServer> dbServers;
@@ -69,7 +69,7 @@ public class Agent implements Watcher {
 
 	private void startMoniterDB() {
 		dbServers = db.getAllServerList();
-		restartOnceDBMonitor();
+
 		for (DBServer server : dbServers) {
 			Timer timer = new Timer();
 			IDBController controller = DBControllerFactory.getController();
@@ -108,16 +108,17 @@ public class Agent implements Watcher {
 		}
 
 	}
-	
-	public void restartOnceDBMonitor(){
+
+	private void restartOnceDBMonitor() {
 		dbMonitorInitLatch = new CountDownLatch(dbServers.size());
-		for(DBMonitor m : dbMonitors){
+		for (DBMonitor m : dbMonitors) {
 			m.restartOneMonitor(dbMonitorInitLatch);
 		}
 	}
 
 	public void waitUnitOnceDBMonitor() {
 		try {
+			restartOnceDBMonitor();
 			dbMonitorInitLatch.await();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -190,12 +191,14 @@ public class Agent implements Watcher {
 	}
 
 	public void shutdown() {
+
+		for (Timer timer : dbTimers) {
+			timer.cancel();
+		}
 		try {
-			for (Timer timer : dbTimers) {
-				timer.cancel();
-			}
 			zk.close();
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -1,0 +1,26 @@
+<div class="container-fluid">
+    <div class="row-fluid">
+<div class="span3">
+    <div class="well sidebar-nav">
+        <ul class="nav nav-list">
+            <%
+                var d;
+                var h;
+                for(var i=0;i < domains.length; i++){
+                    d = domains[i];
+            %>
+            <li class="nav-header"><%=d.name%></li>
+                <%
+                    for(var j=0; j < d.getHosts().length; j++){
+                        h = d.getHosts()[j];
+                %>
+                    <li class="active"><%=h.ip%></li>
+
+                <%
+                    }
+                }
+            %>
+        </ul>
+    </div>
+    <!--/.well -->
+</div>

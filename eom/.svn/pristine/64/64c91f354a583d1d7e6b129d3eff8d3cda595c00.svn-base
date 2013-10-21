@@ -1,0 +1,30 @@
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="/">EOM</a>
+
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                    Logged in as <a href="#" class="navbar-link">Username</a>
+                </p>
+                <ul class="nav">
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#about">install</a></li>
+                    <li><a href="#contact">automatic test</a></li>
+                    <li><a href="#contact">Execute</a></li>
+                    <li><a href="#contact">Report</a></li>
+                    <li class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown">Tools</a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+                            <li><a tabindex="-1" href="#">Action</a></li>
+                            <li><a tabindex="-1" href="#">Another action</a></li>
+                            <li><a tabindex="-1" href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a tabindex="-1" href="#">Separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
