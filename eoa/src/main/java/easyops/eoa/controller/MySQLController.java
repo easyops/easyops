@@ -14,19 +14,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 	private int timeout;
 	private int[] failCodes;
 	private int maxTry;
-	private int port;
-	private String address;
 
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	private String user;
-	private String password;
 
 	@Override
 	public void checkDB() {
@@ -46,7 +34,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 			try {
 
 				conn = DriverManager.getConnection("jdbc:mysql://localhost:"
-						+ port, user, password);
+						+ server.port, server.user, server.getPassword());
 			} catch (SQLException e) {
 				e.printStackTrace();
 				if (isFailCode(e.getErrorCode())) {
@@ -104,6 +92,8 @@ public class MySQLController extends BaseDBController implements IDBController {
 	}
 
 	private boolean isFailCode(int code) {
+		if(failCodes==null)
+			return false;
 		for (int fc : failCodes) {
 			if (code == fc) {
 				return true;
@@ -144,39 +134,11 @@ public class MySQLController extends BaseDBController implements IDBController {
 		this.maxTry = maxTry;
 	}
 
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public void init(DBServer dbserver, Argument arg) {
 		this.server = dbserver;
 		setFailCodes(arg.failCodes);
 		setMaxTry(arg.dbCheckMaxTry);
 		setTimeout(arg.dbCheckTimeout);
-		setPort(server.port);
-		setAddress(server.address);
-		setPassword(server.getPassword());
-		setUser(server.user);
 	}
 
 	@Override
