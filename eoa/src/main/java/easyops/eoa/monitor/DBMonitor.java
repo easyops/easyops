@@ -4,7 +4,7 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 import easyops.eoa.base.ZNode;
-import easyops.eoa.command.Command;
+import easyops.eoa.cmd.Command;
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
