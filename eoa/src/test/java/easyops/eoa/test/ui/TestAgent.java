@@ -1,6 +1,6 @@
 package easyops.eoa.test.ui;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import easyops.eoa.Agent;
-import easyops.eoa.base.ZNode;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
