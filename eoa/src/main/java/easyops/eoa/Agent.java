@@ -10,9 +10,9 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 
+import easyops.eoa.base.ZNode;
 import easyops.eoa.controller.DBControllerFactory;
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.monitor.ActiveLockWatcher;
@@ -22,24 +22,24 @@ import easyops.eoa.resource.DBPartition;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DataBase;
-import easyops.eoa.resource.ZNode;
+import easyops.eoa.ui.MyZooKeeper;
 import easyops.eoa.ui.arguments.Argument;
 
 public class Agent implements Watcher {
 
 	private ZNode zroot;
-	private ZooKeeper zk;
+	private MyZooKeeper zk;
 	private CountDownLatch dbMonitorInitLatch;
 	private List<Timer> dbTimers = new ArrayList<Timer>();
 	public List<IDBController> dbControllers = new ArrayList<IDBController>();
 	private List<DBServer> dbServers;
 	private List<DBMonitor> dbMonitors = new ArrayList<DBMonitor>();
 
-	public ZooKeeper getZk() {
+	public MyZooKeeper getZk() {
 		return zk;
 	}
 
-	public void setZk(ZooKeeper zk) {
+	public void setZk(MyZooKeeper zk) {
 		this.zk = zk;
 	}
 
@@ -86,7 +86,7 @@ public class Agent implements Watcher {
 
 	private void buildZK() throws IOException {
 		latch = new CountDownLatch(1);
-		zk = new ZooKeeper(arg.zkserver, arg.zkSessionTimeout, this);
+		zk = new MyZooKeeper(arg.zkserver, arg.zkSessionTimeout, this);
 		waitUntilConnected();
 		zroot = new ZNode(zk);
 		ZNode node = zroot.addChild("runtime");
@@ -152,7 +152,7 @@ public class Agent implements Watcher {
 
 	private void buildDBServer(List<DBServer> serverList, ZNode pnode) {
 
-		pnode = pnode.addChild(ZNode.DBSERVER_LIST);
+		pnode = pnode.addChild(DataBase.DBSERVER_LIST);
 		pnode.create();
 		for (DBServer server : serverList) {
 			ZNode znode = pnode.addChild(server.getMark());
@@ -161,10 +161,10 @@ public class Agent implements Watcher {
 			znode.create();
 			server.znode = znode;
 			if (server.role == DBRole.MASTER) {
-				ZNode mnode = server.znode.pnode.pnode.getChild(ZNode.MASTER);
+				ZNode mnode = server.znode.pnode.pnode.getChild(DataBase.MASTER);
 				if (noMaster(mnode)) {
 					if (mnode == null) {
-						mnode = server.znode.pnode.pnode.addChild(ZNode.MASTER);
+						mnode = server.znode.pnode.pnode.addChild(DataBase.MASTER);
 					}
 					mnode.createMode = CreateMode.PERSISTENT;
 					mnode.setData(server.getMark());

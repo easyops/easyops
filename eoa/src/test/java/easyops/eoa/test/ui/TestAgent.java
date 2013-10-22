@@ -12,11 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import easyops.eoa.Agent;
+import easyops.eoa.base.ZNode;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DataBase;
-import easyops.eoa.resource.ZNode;
 import easyops.eoa.ui.arguments.Argument;
 
 public class TestAgent extends TestZKBase {
@@ -52,7 +52,7 @@ public class TestAgent extends TestZKBase {
 			if (stat == null) {
 				fail();
 			}
-			path = "/runtime/database/mysql/basedb/" + ZNode.MASTER;
+			path = "/runtime/database/mysql/basedb/" + DataBase.MASTER;
 			stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();

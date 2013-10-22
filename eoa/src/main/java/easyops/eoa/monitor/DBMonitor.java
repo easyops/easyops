@@ -3,11 +3,11 @@ package easyops.eoa.monitor;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
+import easyops.eoa.base.ZNode;
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
-import easyops.eoa.resource.ZNode;
 
 public class DBMonitor extends TimerTask {
 
@@ -58,7 +58,7 @@ public class DBMonitor extends TimerTask {
 		server.znode.data = server.toJsonBytes();
 		server.znode.save();
 		if (server.getStatus() == DBStatus.Active2Down) {
-			ZNode.unLockMe(server);
+			server.deactive();
 		}
 	}
 
@@ -75,7 +75,7 @@ public class DBMonitor extends TimerTask {
 				&& server.role == DBRole.MASTER) {
 
 			if (masterAutoActive || isNoLock()) {
-				ZNode.lockMe(server);
+				server.active();
 			}
 		}
 		server.znode.save();

@@ -5,9 +5,11 @@ import java.util.List;
 
 import com.google.gson.annotations.Expose;
 
-public class DBDomain extends BaseResource {
+import easyops.eoa.base.BaseObject;
 
-	private static final long serialVersionUID = 1L;
+public class DBDomain extends BaseObject {
+
+
 	@Expose
 	public String name;
 	@Expose
@@ -18,23 +20,23 @@ public class DBDomain extends BaseResource {
 	public List<DBServer> serverList;
 
 	public List<DBServer> getSlaveServerList() {
-		List<DBServer> serverList = new ArrayList<DBServer>();
+		List<DBServer> retList = new ArrayList<DBServer>();
 		if (isPartition) {
 			for (DBPartition p : partitionList) {
 				for (DBServer s : p.serverlist) {
 					if (s.role == DBRole.SLAVE) {
-						serverList.add(s);
+						retList.add(s);
 					}
 				}
 			}
 		} else {
 			for (DBServer s : serverList) {
 				if (s.role == DBRole.SLAVE) {
-					serverList.add(s);
+					retList.add(s);
 				}
 			}
 		}
-		return serverList;
+		return retList;
 	}
 
 	public List<DBServer> getAllServerList() {

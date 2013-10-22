@@ -10,4 +10,5 @@ public interface IDBController {
 	public void init(DBServer server, Argument arg);
 	public DBServer getServer();
 	public void shutDownDB();
+	public void startDB();
 }

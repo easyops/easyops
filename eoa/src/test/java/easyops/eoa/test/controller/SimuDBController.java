@@ -23,9 +23,15 @@ public class SimuDBController extends BaseDBController implements IDBController 
 		this.server = server;
 
 	}
-
+	@Override
 	public void shutDownDB() {
 		setValid(false);
+	}
+
+	@Override
+	public void startDB() {
+		setValid(true);
+		
 	}
 
 }

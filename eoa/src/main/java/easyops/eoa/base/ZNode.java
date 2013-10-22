@@ -1,4 +1,4 @@
-package easyops.eoa.resource;
+package easyops.eoa.base;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -8,17 +8,14 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs.Ids;
-import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
 
+import easyops.eoa.ui.MyZooKeeper;
+
 public class ZNode {
 
-	public static String STATUS = "status";
-	public static String CHECK_IN_STAMP = "check_in_stamp";
-	public static String DBSERVER_LIST = "servers";
-	public static String ACTIVE_LOCK = "lock";
-	public static String MASTER = "master";
+
 
 	public enum SOURCE {
 		LOCAL, REMOTE
@@ -27,7 +24,7 @@ public class ZNode {
 
 	public ZNode pnode;
 	public ZNode root;
-	public ZooKeeper zk;
+	public MyZooKeeper zk;
 	public List<ZNode> children = new ArrayList<ZNode>();
 	public SOURCE source = SOURCE.LOCAL;
 	public String path;
@@ -37,7 +34,7 @@ public class ZNode {
 	public CreateMode createMode = CreateMode.PERSISTENT;
 	public ArrayList<ACL> acl = Ids.OPEN_ACL_UNSAFE;
 
-	public ZNode(ZooKeeper zk) {
+	public ZNode(MyZooKeeper zk) {
 		this.root = this;
 		this.pnode = null;
 		this.zk = zk;
@@ -45,11 +42,7 @@ public class ZNode {
 		this.name = "/";
 		try {
 			stat = zk.exists(path, false);
-			if (stat == null) {
-				this.source = SOURCE.LOCAL;
-			} else {
-				this.source = SOURCE.REMOTE;
-			}
+			this.source = SOURCE.REMOTE;
 		} catch (KeeperException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -148,11 +141,9 @@ public class ZNode {
 	}
 
 	public void setData(String s) {
-		try {
-			data = s.getBytes(BaseResource.CharCode);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+
+		data = string2Bytes(s);
+
 	}
 
 	public boolean save() {
@@ -241,7 +232,7 @@ public class ZNode {
 
 	public static String bytes2String(byte[] data) {
 		try {
-			return new String(data, BaseResource.CharCode);
+			return new String(data, BaseObject.CharCode);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
@@ -250,47 +241,11 @@ public class ZNode {
 
 	public static byte[] string2Bytes(String s) {
 		try {
-			return s.getBytes(BaseResource.CharCode);
+			return s.getBytes(BaseObject.CharCode);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 
-	public static boolean lockMe(DBServer server) {
-		ZNode lockNode = server.getLockNode();
-		if (lockNode == null || lockNode.stat == null) {
-			lockNode = server.createLockNode();
-			lockNode.setData(server.getMark());
-			lockNode.createMode = CreateMode.EPHEMERAL;
-			if (lockNode.create()) {
-				server.setStatus(DBStatus.Active);
-			} else {
-				return false;
-			}
-		} else {
-			lockNode.setData(server.getMark());
-			lockNode.createMode = CreateMode.EPHEMERAL;
-			if (!lockNode.save()) {
-				return false;
-			} else {
-				server.setStatus(DBStatus.Active);
-			}
-		}
-		return true;
-	}
-
-	public static void unLockMe(DBServer server) {
-		ZNode lockNode = server.getLockNode();
-		if (lockNode != null) {
-			lockNode.sychronize();
-			if (lockNode.getStringData().equals(server.getMark())) {
-				lockNode.delete();
-				if (server.getStatus() == DBStatus.Active) {
-					server.setStatus(DBStatus.Running);
-				}
-			}
-		}
-
-	}
 }

@@ -6,8 +6,7 @@ public class ZKController implements IZKEvent {
 
 	@Override
 	public void dbLockRelease() {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 }

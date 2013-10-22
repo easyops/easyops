@@ -1,17 +1,13 @@
-package easyops.eoa.resource;
+package easyops.eoa.base;
 
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class BaseResource implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+public class BaseObject{
 	public static String CharCode = "UTF-8";
-	
-	public ZNode znode;
 	public byte[] toJsonBytes() {
 		Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 		try {
@@ -26,6 +22,6 @@ public class BaseResource implements Serializable {
 		return g.toJson(this);
 		
 	}
-	
+	public ZNode znode;
 
 }

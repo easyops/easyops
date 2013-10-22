@@ -1,5 +1,6 @@
 package easyops.eoa.resource;
 
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
@@ -9,9 +10,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 
-public class DBServer extends BaseResource {
+import easyops.eoa.base.BaseObject;
+import easyops.eoa.base.ZNode;
 
-	private static final long serialVersionUID = 1L;
+public class DBServer extends BaseObject {
+
+
 	@Expose
 	public String address;
 	@Expose
@@ -48,7 +52,7 @@ public class DBServer extends BaseResource {
 		return password;
 	}
 
-	public boolean activeServer() {
+	public boolean isActiveServer() {
 		return true;
 	}
 
@@ -68,19 +72,19 @@ public class DBServer extends BaseResource {
 	}
 
 	private String getLockPath() {
-		return znode.pnode.pnode.path + "/" + ZNode.ACTIVE_LOCK;
+		return znode.pnode.pnode.path + "/" + DataBase.ACTIVE_LOCK;
 	}
 
 	public ZNode getLockNode() {
-		ZNode lockNode = znode.pnode.pnode.getChild(ZNode.ACTIVE_LOCK);
+		ZNode lockNode = znode.pnode.pnode.getChild(DataBase.ACTIVE_LOCK);
 		if (lockNode != null) {
 			lockNode.sychronize();
-		}else{
+		} else {
 			try {
 				Stat s = znode.zk.exists(getLockPath(), false);
-				if(s==null){
+				if (s == null) {
 					return null;
-				}else{
+				} else {
 					lockNode = createLockNode();
 				}
 			} catch (KeeperException e) {
@@ -90,13 +94,13 @@ public class DBServer extends BaseResource {
 				e.printStackTrace();
 				return null;
 			}
-			
+
 		}
 		return lockNode;
 	}
 
 	public ZNode createLockNode() {
-		ZNode lockNode = znode.pnode.pnode.addChild(ZNode.ACTIVE_LOCK);
+		ZNode lockNode = znode.pnode.pnode.addChild(DataBase.ACTIVE_LOCK);
 		return lockNode;
 	}
 
@@ -106,6 +110,37 @@ public class DBServer extends BaseResource {
 		DBServer server = g.fromJson(json, new TypeToken<DBServer>() {
 		}.getType());
 		return server;
+	}
+
+	public boolean active() {
+		ZNode lockNode = getLockNode();
+		if (lockNode != null) {
+			lockNode.delete();
+		}
+
+		lockNode = createLockNode();
+		lockNode.setData(getMark());
+		lockNode.createMode = CreateMode.EPHEMERAL;
+		if (lockNode.create()) {
+			setStatus(DBStatus.Active);
+		} else {
+			return false;
+		}
+
+		return true;
+	}
+
+	public void deactive() {
+		ZNode lockNode = getLockNode();
+		if (lockNode != null) {
+			if (lockNode.getStringData().equals(getMark())) {
+				lockNode.delete();
+				if (getStatus() == DBStatus.Active) {
+					setStatus(DBStatus.Running);
+				}
+			}
+		}
+
 	}
 
 }

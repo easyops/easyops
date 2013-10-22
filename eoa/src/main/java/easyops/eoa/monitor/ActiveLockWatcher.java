@@ -7,9 +7,9 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
-import easyops.eoa.resource.ZNode;
+import easyops.eoa.ui.MyZookeeperStatus;
 
-public class ActiveLockWatcher implements Watcher {
+public class ActiveLockWatcher extends BaseWatcher implements Watcher {
 
 	private DBServer server;
 	private int freezeTime;
@@ -18,10 +18,12 @@ public class ActiveLockWatcher implements Watcher {
 		this.server = server;
 		this.freezeTime = freezeTime;
 	}
-	
+
 	@Override
 	public void process(WatchedEvent event) {
-		
+		if (server.znode.zk.getMyStatus() == MyZookeeperStatus.ClOSING) {
+			return;
+		}
 		if (server.getStatus() != DBStatus.Running) {
 			reWatch(event);
 			return;
@@ -32,17 +34,17 @@ public class ActiveLockWatcher implements Watcher {
 			return;
 		}
 		if (event.getType() == EventType.NodeDeleted) {
-			if(ZNode.lockMe(server)) {
-				if (!server.activeServer()) {
-					ZNode.unLockMe(server);
+			if (server.active()) {
+				if (!server.isActiveServer()) {
+					server.deactive();
 					server.freezeStamp = System.currentTimeMillis();
 					reWatch(event);
 				}
-			} else {				
+			} else {
 				reWatch(event);
 
 			}
-		}else{
+		} else {
 			reWatch(event);
 		}
 

@@ -8,9 +8,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 
-public class DataBase extends BaseResource {
+import easyops.eoa.base.BaseObject;
 
-	private static final long serialVersionUID = 1L;
+public class DataBase extends BaseObject {
+
+	public static String STATUS = "status";
+	public static String CHECK_IN_STAMP = "check_in_stamp";
+	public static String DBSERVER_LIST = "servers";
+	public static String ACTIVE_LOCK = "lock";
+	public static String MASTER = "master";
 
 	@Expose
 	public List<DBDomain> dbList;
