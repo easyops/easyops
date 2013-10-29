@@ -11,4 +11,5 @@ public interface IDBController {
 	public DBServer getServer();
 	public void shutDownDB();
 	public void startDB();
+	public boolean activeDB();
 }

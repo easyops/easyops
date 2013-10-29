@@ -152,6 +152,12 @@ public class MySQLController extends BaseDBController implements IDBController {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public boolean activeDB() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 
 }

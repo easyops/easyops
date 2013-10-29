@@ -7,6 +7,9 @@ import easyops.eoa.ui.arguments.Argument;
 
 public class SimuDBController extends BaseDBController implements IDBController {
 
+	
+	public boolean activeResult = true;
+	
 	@Override
 	public void checkDB() {
 
@@ -32,6 +35,12 @@ public class SimuDBController extends BaseDBController implements IDBController 
 	public void startDB() {
 		setValid(true);
 		
+	}
+
+	@Override
+	public boolean activeDB() {
+
+		return activeResult;
 	}
 
 }

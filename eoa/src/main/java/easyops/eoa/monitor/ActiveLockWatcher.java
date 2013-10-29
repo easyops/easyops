@@ -4,6 +4,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.ZooKeeper;
 
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
@@ -21,39 +22,41 @@ public class ActiveLockWatcher extends BaseWatcher implements Watcher {
 
 	@Override
 	public void process(WatchedEvent event) {
+		String path = event.getPath();
 		if (server.znode.zk.getMyStatus() == MyZookeeperStatus.ClOSING) {
 			return;
 		}
 		if (server.getStatus() != DBStatus.Running) {
-			reWatch(event);
+			watch(path);
 			return;
 		}
 		if (server.freezeStamp != 0
 				&& server.freezeStamp + freezeTime > System.currentTimeMillis()) {
-			reWatch(event);
+			watch(path);
 			return;
 		}
 		if (event.getType() == EventType.NodeDeleted) {
 			if (server.active()) {
 				if (!server.isActiveServer()) {
-					server.deactive();
-					server.freezeStamp = System.currentTimeMillis();
-					reWatch(event);
+					watch(path);
 				}
 			} else {
-				reWatch(event);
+				watch(path);
 
 			}
 		} else {
-			reWatch(event);
+			watch(path);
 		}
 
 	}
 
-	private void reWatch(WatchedEvent event) {
-		String path = event.getPath();
+	private void watch(String path) {
+		watch(server.znode.zk, path, this);
+	}
+
+	public static void watch(ZooKeeper zk, String path, Watcher watcher) {
 		try {
-			server.znode.zk.exists(path, this);
+			zk.exists(path, watcher);
 		} catch (KeeperException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

@@ -120,6 +120,7 @@ public class TestAgent extends TestZKBase {
 		master.user = "dbmonitor";
 		master.password = "123";
 		master.role = DBRole.MASTER;
+		master.serverName = "basedb_1";
 
 		DBServer slave = new DBServer();
 		slave.address = "10.10.10.10";
@@ -127,6 +128,7 @@ public class TestAgent extends TestZKBase {
 		slave.user = "dbmonitor";
 		slave.password = "1234";
 		slave.role = DBRole.SLAVE;
+		slave.serverName = "basedb_2";
 
 		basedb.serverList.add(master);
 		basedb.serverList.add(slave);
@@ -144,6 +146,7 @@ public class TestAgent extends TestZKBase {
 		slave.user = "dbmonitor";
 		slave.password = "1234";
 		slave.role = DBRole.SLAVE;
+		slave.serverName = "acctdb_3";
 		acctdb.serverList.add(slave);
 		db.dbList.add(acctdb);
 		arg.db = db.toJsonString();

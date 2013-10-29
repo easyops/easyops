@@ -19,7 +19,6 @@ import easyops.eoa.monitor.ActiveLockWatcher;
 import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBPartition;
-import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DataBase;
 import easyops.eoa.ui.MyZooKeeper;
@@ -74,6 +73,7 @@ public class Agent implements Watcher {
 			Timer timer = new Timer();
 			IDBController controller = DBControllerFactory.getController();
 			controller.init(server, arg);
+			server.controller = controller;
 			dbControllers.add(controller);
 			DBMonitor m = new DBMonitor(controller, server,
 					arg.masterAutoActive);
@@ -160,34 +160,10 @@ public class Agent implements Watcher {
 			znode.createMode = CreateMode.EPHEMERAL;
 			znode.create();
 			server.znode = znode;
-			if (server.role == DBRole.MASTER) {
-				ZNode mnode = server.znode.pnode.pnode.getChild(DataBase.MASTER);
-				if (noMaster(mnode)) {
-					if (mnode == null) {
-						mnode = server.znode.pnode.pnode.addChild(DataBase.MASTER);
-					}
-					mnode.createMode = CreateMode.PERSISTENT;
-					mnode.setData(server.getMark());
-					mnode.create();
-				}
-
-			}
+			server.initMasterNode();
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}
 
-	}
-
-	private boolean noMaster(ZNode mnode) {
-		boolean isNone = false;
-		if (mnode == null) {
-			isNone = true;
-		} else {
-			mnode.exists();
-			if (mnode.stat != null) {
-				isNone = true;
-			}
-		}
-		return isNone;
 	}
 
 	public void shutdown() {
@@ -198,7 +174,7 @@ public class Agent implements Watcher {
 		try {
 			zk.close();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}

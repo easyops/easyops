@@ -182,6 +182,12 @@ public class TestMonitor extends TestZKBase {
 			Assert.assertTrue("10.10.10.10:5000".equals(ZNode
 					.bytes2String(zk.getData(path, false, stat))));
 		}
+		path = "/runtime/database/mysql/basedb/master/serverName";
+		data = ZNode.bytes2String(zk.getData(path, false, stat));
+		assertEquals("basedb_1", data);
+		path = "/runtime/database/mysql/basedb/master/port";
+		data = ZNode.bytes2String(zk.getData(path, false, stat));
+		assertEquals("5000", data);
 	}
 
 	private void checkMasterDown(Agent agent, ZooKeeper zk, String path)
@@ -216,6 +222,12 @@ public class TestMonitor extends TestZKBase {
 			lockdata = ZNode.bytes2String(zk.getData(path, false, stat));
 			Assert.assertTrue(!"10.10.10.10:5000".equals(lockdata));
 		}
+		path = "/runtime/database/mysql/basedb/master/serverName";
+		data = ZNode.bytes2String(zk.getData(path, false, stat));
+		assertEquals("basedb_2", data);
+		path = "/runtime/database/mysql/basedb/master/port";
+		data = ZNode.bytes2String(zk.getData(path, false, stat));
+		assertEquals("5001", data);
 	}
 
 	@After
@@ -244,6 +256,12 @@ public class TestMonitor extends TestZKBase {
 
 			String data = ZNode.bytes2String(zk.getData(path, false, stat));
 			assertEquals("10.10.10.10:5000", data);
+			path = "/runtime/database/mysql/basedb/master/serverName";
+			data = ZNode.bytes2String(zk.getData(path, false, stat));
+			assertEquals("basedb_1", data);
+			path = "/runtime/database/mysql/basedb/master/port";
+			data = ZNode.bytes2String(zk.getData(path, false, stat));
+			assertEquals("5000", data);
 			path = "/runtime/database/mysql/acctdb/lock";
 			stat = zk.exists(path, false);
 			if (stat != null) {

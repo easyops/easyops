@@ -12,9 +12,9 @@ import com.google.gson.reflect.TypeToken;
 
 import easyops.eoa.base.BaseObject;
 import easyops.eoa.base.ZNode;
+import easyops.eoa.controller.IDBController;
 
 public class DBServer extends BaseObject {
-
 
 	@Expose
 	public String address;
@@ -28,6 +28,10 @@ public class DBServer extends BaseObject {
 	public DBRole role = DBRole.SLAVE;
 	@Expose
 	private DBStatus status = DBStatus.Down;
+	@Expose
+	public String serverName="";
+
+	public IDBController controller;
 
 	public DBStatus getStatus() {
 		return status;
@@ -122,12 +126,41 @@ public class DBServer extends BaseObject {
 		lockNode.setData(getMark());
 		lockNode.createMode = CreateMode.EPHEMERAL;
 		if (lockNode.create()) {
-			setStatus(DBStatus.Active);
+			if (controller.activeDB()) {
+				changeMasterNode();
+				setStatus(DBStatus.Active);
+			} else {
+				deactive();
+				freezeStamp = System.currentTimeMillis();
+			}
 		} else {
 			return false;
 		}
 
 		return true;
+	}
+
+	private void changeMasterNode() {
+		ZNode mnode = znode.pnode.pnode.getChild(DataBase.MASTER);
+		if (noMaster(mnode)) {
+			if (mnode == null) {
+				mnode = znode.pnode.pnode.addChild(DataBase.MASTER);
+			}
+			mnode.createMode = CreateMode.PERSISTENT;
+			mnode.setData(getMark());
+			mnode.create();
+		}
+
+		ZNode serverNameNode = mnode.addChild(DataBase.SERVER_NAME);
+		serverNameNode.setData(serverName);
+		serverNameNode.save();
+		ZNode hostNode = mnode.addChild(DataBase.HOST);
+		hostNode.setData(address);
+		hostNode.save();
+		ZNode portNode = mnode.addChild(DataBase.PORT);
+		portNode.setData("" + port);
+		portNode.save();
+
 	}
 
 	public void deactive() {
@@ -141,6 +174,44 @@ public class DBServer extends BaseObject {
 			}
 		}
 
+	}
+
+	public void initMasterNode() {
+
+		if (role == DBRole.MASTER) {
+			ZNode mnode = znode.pnode.pnode.getChild(DataBase.MASTER);
+			if (noMaster(mnode)) {
+				if (mnode == null) {
+					mnode = znode.pnode.pnode.addChild(DataBase.MASTER);
+				}
+				mnode.createMode = CreateMode.PERSISTENT;
+				mnode.setData(getMark());
+				mnode.create();
+			}
+			ZNode serverNameNode = mnode.addChild(DataBase.SERVER_NAME);
+			serverNameNode.setData(serverName);
+			serverNameNode.save();
+			ZNode hostNode = mnode.addChild(DataBase.HOST);
+			hostNode.setData(address);
+			hostNode.save();
+			ZNode portNode = mnode.addChild(DataBase.PORT);
+			portNode.setData("" + port);
+			portNode.save();
+		}
+
+	}
+
+	private boolean noMaster(ZNode mnode) {
+		boolean isNone = false;
+		if (mnode == null) {
+			isNone = true;
+		} else {
+			mnode.exists();
+			if (mnode.stat != null) {
+				isNone = true;
+			}
+		}
+		return isNone;
 	}
 
 }

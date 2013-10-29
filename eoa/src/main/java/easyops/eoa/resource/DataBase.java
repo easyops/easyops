@@ -17,6 +17,9 @@ public class DataBase extends BaseObject {
 	public static String DBSERVER_LIST = "servers";
 	public static String ACTIVE_LOCK = "lock";
 	public static String MASTER = "master";
+	public static String SERVER_NAME = "serverName";
+	public static String HOST = "host";
+	public static String PORT = "port";
 
 	@Expose
 	public List<DBDomain> dbList;

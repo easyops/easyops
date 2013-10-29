@@ -88,7 +88,7 @@ public class ZNode {
 		try {
 			stat = zk.exists(path, false);
 			if (stat != null) {
-				return true;
+				return false;
 			}
 			zk.create(path, data, this.acl, createMode);
 		} catch (KeeperException e) {
