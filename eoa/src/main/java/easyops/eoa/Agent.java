@@ -160,7 +160,7 @@ public class Agent implements Watcher {
 			znode.createMode = CreateMode.EPHEMERAL;
 			znode.create();
 			server.znode = znode;
-			server.initMasterNode();
+			server.initActiveNode();
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}
 

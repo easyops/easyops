@@ -4,7 +4,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 import easyops.eoa.base.ZNode;
-import easyops.eoa.cmd.Command;
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBRole;
 import easyops.eoa.resource.DBServer;
@@ -74,10 +73,6 @@ public class DBMonitor extends TimerTask {
 				&& server.role == DBRole.MASTER) {
 
 			if (masterAutoActive || isNoLock()) {
-				if(!isNoLock()){
-					Command cmm = Command.getDeactiveDB();
-					cmm.send();
-				}
 				server.active();
 			}
 		}

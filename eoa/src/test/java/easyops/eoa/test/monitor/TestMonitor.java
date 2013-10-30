@@ -16,6 +16,7 @@ import easyops.eoa.base.ZNode;
 import easyops.eoa.controller.IDBController;
 import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DBStatus;
+import easyops.eoa.resource.DataBase;
 import easyops.eoa.test.ui.TestAgent;
 import easyops.eoa.test.ui.TestZKBase;
 import easyops.eoa.ui.arguments.Argument;
@@ -32,7 +33,7 @@ public class TestMonitor extends TestZKBase {
 		Argument arg = TestAgent.initArguments();
 		Agent agent = TestAgent.startAgent(arg);
 		ZooKeeper zk = agent.getZk();
-		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5001";
+		String path = "/runtime/database/mysql/basedb/servers/basedb_2:10.10.10.10:5001";
 		try {
 			checkSlaveDown(agent, zk, path);
 		} catch (KeeperException e) {
@@ -54,7 +55,7 @@ public class TestMonitor extends TestZKBase {
 		IDBController con;
 		String data;
 		DBServer server;
-		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5001";
+		String path = "/runtime/database/mysql/basedb/servers/basedb_2:10.10.10.10:5001";
 		Stat stat = new Stat();
 		try {
 			checkSlaveDown(agent, zk, path);
@@ -117,9 +118,9 @@ public class TestMonitor extends TestZKBase {
 		Agent agent = TestAgent.startAgent(arg);
 		agent.waitUnitOnceDBMonitor();
 		ZooKeeper zk = agent.getZk();
-		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
+		
 		try {
-			checkMasterDown(agent, zk, path);
+			checkMasterDown(agent, zk);
 		} catch (KeeperException e) {
 			e.printStackTrace();
 			fail();
@@ -139,10 +140,9 @@ public class TestMonitor extends TestZKBase {
 		agent.waitUnitOnceDBMonitor();
 		ZooKeeper zk = agent.getZk();
 
-		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
 		try {
 			
-			checkMasterDown(agent, zk, path);
+			checkMasterDown(agent, zk);
 			checkMasterUP(agent, zk);
 
 		} catch (KeeperException e) {
@@ -169,29 +169,29 @@ public class TestMonitor extends TestZKBase {
 		}
 		con.startDB();
 		agent.waitUnitOnceDBMonitor();
-		path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
+		path = "/runtime/database/mysql/basedb/servers/basedb_1:10.10.10.10:5000";
 		data = ZNode.bytes2String(zk.getData(path, false, stat));
 		server = DBServer.fromJson(data);
 		assertEquals(DBStatus.Active, server.getStatus());
 		Thread.sleep(1000);
-		path = "/runtime/database/mysql/basedb/lock";
+		path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_LOCK;
 		stat = zk.exists(path, false);
 		if (stat == null) {
 
 		} else {
-			Assert.assertTrue("10.10.10.10:5000".equals(ZNode
+			Assert.assertTrue("basedb_1:10.10.10.10:5000".equals(ZNode
 					.bytes2String(zk.getData(path, false, stat))));
 		}
-		path = "/runtime/database/mysql/basedb/master/serverName";
+		
+		path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_NODE;
 		data = ZNode.bytes2String(zk.getData(path, false, stat));
-		assertEquals("basedb_1", data);
-		path = "/runtime/database/mysql/basedb/master/port";
-		data = ZNode.bytes2String(zk.getData(path, false, stat));
-		assertEquals("5000", data);
+		assertEquals("basedb_1:10.10.10.10:5000", data);
+
 	}
 
-	private void checkMasterDown(Agent agent, ZooKeeper zk, String path)
+	private void checkMasterDown(Agent agent, ZooKeeper zk)
 			throws KeeperException, InterruptedException {
+		String path = "/runtime/database/mysql/basedb/servers/basedb_1:10.10.10.10:5000";
 		Stat stat = zk.exists(path, false);
 		if (stat == null) {
 			fail();
@@ -202,32 +202,29 @@ public class TestMonitor extends TestZKBase {
 			fail();
 		}
 		String lockdata = ZNode.bytes2String(zk.getData(path, false, stat));
-		assertEquals("10.10.10.10:5000", lockdata);
+		assertEquals("basedb_1:10.10.10.10:5000", lockdata);
 		IDBController con = findDBController(agent, "10.10.10.10", 5000);
 		if (con == null) {
 			fail("can't find dbserver");
 		}
 		con.shutDownDB();
 		agent.waitUnitOnceDBMonitor();
-		path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
+		path = "/runtime/database/mysql/basedb/servers/basedb_1:10.10.10.10:5000";
 		String data = ZNode.bytes2String(zk.getData(path, false, stat));
 		DBServer server = DBServer.fromJson(data);
 		assertEquals(DBStatus.Active2Down, server.getStatus());
 		Thread.sleep(1000);
-		path = "/runtime/database/mysql/basedb/lock";
+		path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_LOCK;
 		stat = zk.exists(path, false);
 		if (stat == null) {
 
 		} else {
 			lockdata = ZNode.bytes2String(zk.getData(path, false, stat));
-			Assert.assertTrue(!"10.10.10.10:5000".equals(lockdata));
+			Assert.assertTrue(!"basedb_1:10.10.10.10:5000".equals(lockdata));
 		}
-		path = "/runtime/database/mysql/basedb/master/serverName";
+		path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_NODE;
 		data = ZNode.bytes2String(zk.getData(path, false, stat));
-		assertEquals("basedb_2", data);
-		path = "/runtime/database/mysql/basedb/master/port";
-		data = ZNode.bytes2String(zk.getData(path, false, stat));
-		assertEquals("5001", data);
+		assertEquals("basedb_2:10.10.10.10:5001", data);
 	}
 
 	@After
@@ -247,7 +244,7 @@ public class TestMonitor extends TestZKBase {
 		ZooKeeper zk = agent.getZk();
 		String path;
 		Stat stat;
-		path = "/runtime/database/mysql/basedb/lock";
+		path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_LOCK;
 		try {
 			stat = zk.exists(path, false);
 			if (stat == null) {
@@ -255,14 +252,11 @@ public class TestMonitor extends TestZKBase {
 			}
 
 			String data = ZNode.bytes2String(zk.getData(path, false, stat));
-			assertEquals("10.10.10.10:5000", data);
-			path = "/runtime/database/mysql/basedb/master/serverName";
+			assertEquals("basedb_1:10.10.10.10:5000", data);
+			path = "/runtime/database/mysql/basedb/"+DataBase.ACTIVE_NODE;
 			data = ZNode.bytes2String(zk.getData(path, false, stat));
-			assertEquals("basedb_1", data);
-			path = "/runtime/database/mysql/basedb/master/port";
-			data = ZNode.bytes2String(zk.getData(path, false, stat));
-			assertEquals("5000", data);
-			path = "/runtime/database/mysql/acctdb/lock";
+			assertEquals("basedb_1:10.10.10.10:5000", data);
+			path = "/runtime/database/mysql/acctdb/"+DataBase.ACTIVE_LOCK;
 			stat = zk.exists(path, false);
 			if (stat != null) {
 				fail();

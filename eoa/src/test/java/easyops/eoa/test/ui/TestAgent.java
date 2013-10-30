@@ -45,24 +45,24 @@ public class TestAgent extends TestZKBase {
 		 * check result
 		 */
 		ZooKeeper zk = agent.getZk();
-		String path = "/runtime/database/mysql/basedb/servers/10.10.10.10:5000";
+		String path = "/runtime/database/mysql/basedb/servers/basedb_1:10.10.10.10:5000";
 		try {
 			Stat stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();
 			}
-			path = "/runtime/database/mysql/basedb/" + DataBase.MASTER;
+			path = "/runtime/database/mysql/basedb/" + DataBase.ACTIVE_NODE;
 			stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();
 			}
-			path = "/runtime/database/mysql/acctdb/servers/10.10.10.10:5002";
+			path = "/runtime/database/mysql/acctdb/servers/acctdb_3:10.10.10.10:5002";
 			stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();
 			}
 
-			path = "/runtime/database/mysql/acctdb/master";
+			path = "/runtime/database/mysql/acctdb/"+DataBase.ACTIVE_NODE;
 			stat = zk.exists(path, false);
 			if (stat != null) {
 				fail();

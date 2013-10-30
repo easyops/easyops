@@ -18,7 +18,7 @@ public class TestDataBase {
 	@Test
 	public void testToJSon() {
 		DataBase db = buildDB();
-		System.out.println(db.toJsonString());
+		//System.out.println(db.toJsonString());
 
 	}
 
@@ -93,7 +93,6 @@ public class TestDataBase {
 		domain.partitionList = new ArrayList<DBPartition>();
 		domain.partitionList.add(p);
 		domain.serverList = null;
-		System.out.println(db.toJsonString());
 
 		db.dbList.add(domain);
 		return db;

@@ -4,7 +4,7 @@ import easyops.eoa.resource.DBServer;
 
 public class BaseDBController {
 	public DBServer server;
-	boolean valid;
+	boolean valid = true;
 	private String message;
 
 	public boolean isValid() {
