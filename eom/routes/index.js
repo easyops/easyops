@@ -3,7 +3,7 @@
  * GET home page.
  */
 
-var host = require("../busi_modules/host");
+var host = require("../bizz/host");
 
 exports.index = function(req, res){
   var hostList = host.getAllDomain();
