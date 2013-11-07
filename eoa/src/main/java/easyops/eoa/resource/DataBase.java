@@ -18,16 +18,48 @@ public class DataBase extends BaseObject {
 	public static String ACTIVE_LOCK = "lock";
 	public static String ACTIVE_NODE = "active_server";
 
-
 	@Expose
-	public List<DBDomain> dbList;
+	public List<DBDomain> domainList = new ArrayList<DBDomain>();
 
 	public static DataBase buildDB(String dbParameter) {
-		if (dbParameter == null || dbParameter.length() == 0) {
-			return new DataBase();
+		try {
+			if (dbParameter == null || dbParameter.length() == 0) {
+				return new DataBase();
+			}
+			String[] ss = dbParameter.split(",");
+			DataBase db = new DataBase();
+			for (String s : ss) {
+				s = s.trim();
+				String[] xx = s.split("\\.");				
+				DBDomain domain = db.getDomain(xx[0]);
+				if(domain==null){
+					domain = new DBDomain();
+					domain.name = xx[0];
+					db.domainList.add(domain);
+				}
+				DBServer server = domain.getServer(xx[1]);
+				if(server == null){
+					server = new DBServer();
+					server.serverName = xx[1];
+					domain.serverList.add(server);
+				}
+				
+			}
+			return db;
+		} catch (Throwable e) {
+			e.printStackTrace();			
+			return null;
 		}
-		DataBase db = DataBase.fromJson(dbParameter);
-		return db;
+
+	}
+
+	private DBDomain getDomain(String name) {
+		for(DBDomain domain : domainList){
+			if(domain.name.equals(name)){
+				return domain;
+			}
+		}
+		return null;
 	}
 
 	public static DataBase fromJson(String json) {
@@ -40,7 +72,7 @@ public class DataBase extends BaseObject {
 
 	public List<DBServer> getAllServerList() {
 		List<DBServer> list = new ArrayList<DBServer>();
-		for (DBDomain domain : dbList) {
+		for (DBDomain domain : domainList) {
 			list.addAll(domain.getAllServerList());
 		}
 		return list;

@@ -17,7 +17,7 @@ public class DBDomain extends BaseObject {
 	@Expose
 	public List<DBPartition> partitionList;
 	@Expose
-	public List<DBServer> serverList;
+	public List<DBServer> serverList = new ArrayList<DBServer>();
 
 	public List<DBServer> getSlaveServerList() {
 		List<DBServer> retList = new ArrayList<DBServer>();
@@ -53,6 +53,15 @@ public class DBDomain extends BaseObject {
 			}
 		}
 		return retList;
+	}
+
+	public DBServer getServer(String name) {
+		for(DBServer server: serverList){
+			if(server.serverName.equals(name)){
+				return server;
+			}
+		}
+		return null;
 	}
 
 

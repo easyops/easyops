@@ -18,14 +18,14 @@ public class TestDataBase {
 	@Test
 	public void testToJSon() {
 		DataBase db = buildDB();
-		//System.out.println(db.toJsonString());
+		System.out.println(db.toJsonString());
 
 	}
 
 	@Test
 	public void testDomain() {
 		DataBase db = buildDB();
-		for (DBDomain domain : db.dbList) {
+		for (DBDomain domain : db.domainList) {
 			if ("basedb".equals(domain.name)) {
 				List<DBServer> serverList = domain.getSlaveServerList();
 				assertEquals(true, serverList != null);
@@ -69,8 +69,8 @@ public class TestDataBase {
 		serverList.add(server);
 		domain.serverList = serverList;
 		
-		db.dbList = new ArrayList<DBDomain>();
-		db.dbList.add(domain);
+		
+		db.domainList.add(domain);
 		System.out.println(db.toJsonString());
 
 		domain = new DBDomain();
@@ -94,7 +94,7 @@ public class TestDataBase {
 		domain.partitionList.add(p);
 		domain.serverList = null;
 
-		db.dbList.add(domain);
+		db.domainList.add(domain);
 		return db;
 	}
 

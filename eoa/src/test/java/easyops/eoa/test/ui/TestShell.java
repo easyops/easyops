@@ -40,7 +40,7 @@ public class TestShell {
 				"-dbCheckMaxTry=3",
 				"-failCodes=1,3,4,5",
 				"-freezeTime=10000",
-				"-db={\"dbList\":[{\"name\":\"basedb\",\"isPartition\":false,\"serverList\":[{\"address\":\"10.10.10.10\",\"user\":\"dbmonitor\",\"password\":\"dbmonitor123\",\"port\":5000,\"role\":\"MASTER\",\"status\":\"Down\",\"freezeStamp\":0}]}]}" };
+				"-db=basedb.basedb_1, basedb.basedb_3, acctdb.acctdb_3"};
 		Argument a = new Argument();
 		new JCommander(a, par);
 		assertEquals(a.id, "4test");
@@ -48,9 +48,9 @@ public class TestShell {
 		assertEquals(a.failCodes.length, 4);
 		assertEquals(a.failCodes[0], 1);
 		DataBase db = DataBase.buildDB(a.db);
-		assertEquals(db.dbList.size(), 1);
-		assertEquals(db.dbList.get(0).isPartition, false);
-		assertEquals(db.dbList.get(0).name, "basedb");
+		assertEquals(db.domainList.size(), 2);
+		assertEquals(db.domainList.get(0).isPartition, false);
+		assertEquals(db.domainList.get(0).name, "basedb");
 
 	}
 
@@ -66,7 +66,7 @@ public class TestShell {
 				"-dbCheckMaxTry=3",
 				"-failCodes=1,3,4,5",
 				"-freezeTime=10000",
-				"-db={\"dbList\":[{\"name\":\"basedb\",\"isPartition\":false,\"serverList\":[{\"address\":\"10.10.10.10\",\"user\":\"dbmonitor\",\"password\":\"dbmonitor123\",\"port\":5000,\"role\":\"MASTER\",\"status\":\"Down\",\"freezeStamp\":0}]}]}" };
+				"-db=basedb.basedb_1,basedb.basedb_3,acctdb.acctdb_3"};
 		Shell.init(args);
 	}
 

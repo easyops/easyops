@@ -13,7 +13,7 @@ public class Argument {
 	public String id;
 	@Parameter(names = "-zkserver")
 	public String zkserver;
-	@Parameter(names = "-db", description = "{\"dbList\":[{\"name\":\"basedb\",\"isPartition\":false,\"serverList\":[{\"address\":\"10.10.10.10\",\"user\":\"dbmonitor\",\"password\":\"dbmonitor123\",\"port\":5000,\"role\":\"MASTER\",\"status\":\"Down\",\"freezeStamp\":0}]}]}")
+	@Parameter(names = "-db", description = "domain.servername, split by <,>")
 	public String db;
 	@Parameter(names = "-zkSessionTimeout")
 	public int zkSessionTimeout;

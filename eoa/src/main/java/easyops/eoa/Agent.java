@@ -43,12 +43,12 @@ public class Agent implements Watcher {
 	}
 
 	private Argument arg;
-	private DataBase db;
+	private DataBase database;
 	private CountDownLatch latch;
 
 	public Agent(Argument arg) {
 		this.arg = arg;
-		this.db = DataBase.buildDB(this.arg.db);
+		this.database = DataBase.buildDB(this.arg.db);
 
 	}
 
@@ -67,7 +67,7 @@ public class Agent implements Watcher {
 	}
 
 	private void startMoniterDB() {
-		dbServers = db.getAllServerList();
+		dbServers = database.getAllServerList();
 
 		for (DBServer server : dbServers) {
 			Timer timer = new Timer();
@@ -90,11 +90,11 @@ public class Agent implements Watcher {
 		waitUntilConnected();
 		zroot = new ZNode(zk);
 		ZNode node = zroot.addChild("runtime");
-		node.create();
+		node.sychronize();
 		node = node.addChild("database");
-		node.create();
+		node.sychronize();
 		node = node.addChild("mysql");
-		node.create();
+		node.sychronize();
 		buildDBDomain(node);
 	}
 
@@ -126,11 +126,9 @@ public class Agent implements Watcher {
 	}
 
 	private void buildDBDomain(ZNode node) {
-		for (DBDomain domain : db.dbList) {
+		for (DBDomain domain : database.domainList) {
 			ZNode znode = node.addChild(domain.name);
-			znode.createMode = CreateMode.PERSISTENT;
-			znode.data = domain.toJsonBytes();
-			znode.create();
+			znode.sychronize();
 			domain.znode = znode;
 			buildDBServer(domain, znode);
 		}
@@ -140,8 +138,7 @@ public class Agent implements Watcher {
 		if (domain.isPartition) {
 			for (DBPartition partition : domain.partitionList) {
 				ZNode znode = domainNode.addChild(partition.partitionId);
-				znode.createMode = CreateMode.PERSISTENT;
-				znode.create();
+				znode.sychronize();				
 				partition.znode = znode;
 				buildDBServer(partition.serverlist, znode);
 			}
@@ -153,13 +150,12 @@ public class Agent implements Watcher {
 	private void buildDBServer(List<DBServer> serverList, ZNode pnode) {
 
 		pnode = pnode.addChild(DataBase.DBSERVER_LIST);
-		pnode.create();
+		pnode.sychronize();		
 		for (DBServer server : serverList) {
-			ZNode znode = pnode.addChild(server.getMark());
-			znode.data = server.toJsonBytes();
-			znode.createMode = CreateMode.EPHEMERAL;
-			znode.create();
+			ZNode znode = pnode.addChild(server.serverName);
+			znode.sychronize();
 			server.znode = znode;
+			server.setValuefromJson(znode.getStringData());			
 			server.initActiveNode();
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}

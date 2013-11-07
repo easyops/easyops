@@ -15,7 +15,6 @@ import easyops.eoa.base.ZNode;
 import easyops.eoa.controller.IDBController;
 
 public class DBServer extends BaseObject {
-
 	@Expose
 	public String address;
 	@Expose
@@ -30,7 +29,15 @@ public class DBServer extends BaseObject {
 	private DBStatus status = DBStatus.Down;
 	@Expose
 	public String serverName = "";
-
+	@Expose
+	public String agentId = "";
+	@Expose
+	public long freezeStamp = 0;
+	@Expose
+	public long checkInStamp = 0;
+	
+	
+	
 	public IDBController controller;
 
 	public DBStatus getStatus() {
@@ -41,10 +48,7 @@ public class DBServer extends BaseObject {
 		this.status = status;
 	}
 
-	@Expose
-	public long freezeStamp = 0;
-	@Expose
-	public long checkInStamp = 0;
+
 
 	public Watcher lockWatch;
 
@@ -114,6 +118,24 @@ public class DBServer extends BaseObject {
 		DBServer server = g.fromJson(json, new TypeToken<DBServer>() {
 		}.getType());
 		return server;
+	}
+	
+	public void setValuefromJson(String json) {
+		Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
+				.create();
+		DBServer server = g.fromJson(json, new TypeToken<DBServer>() {
+		}.getType());
+		this.address = server.address;
+		this.agentId = server.agentId;
+		this.checkInStamp = server.checkInStamp;
+		this.freezeStamp = server.freezeStamp;
+		this.password = server.password;
+		this.port = server.port;
+		this.role = server.role;
+		this.serverName = server.serverName;
+		this.status = server.status;
+		this.user = server.user;
+		
 	}
 
 	public boolean active() {

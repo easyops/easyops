@@ -2,8 +2,6 @@ package easyops.eoa.test.ui;
 
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
-
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
@@ -12,17 +10,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import easyops.eoa.Agent;
-import easyops.eoa.resource.DBDomain;
-import easyops.eoa.resource.DBRole;
-import easyops.eoa.resource.DBServer;
 import easyops.eoa.resource.DataBase;
 import easyops.eoa.ui.arguments.Argument;
 
 public class TestAgent extends TestZKBase {
 
 	@Before
-	public void setup() {
+	public void setup() throws Exception {
 		super.init();
+
 	}
 
 	@Test
@@ -45,7 +41,7 @@ public class TestAgent extends TestZKBase {
 		 * check result
 		 */
 		ZooKeeper zk = agent.getZk();
-		String path = "/runtime/database/mysql/basedb/servers/basedb_1:10.10.10.10:5000";
+		String path = "/runtime/database/mysql/basedb/servers/basedb_1";
 		try {
 			Stat stat = zk.exists(path, false);
 			if (stat == null) {
@@ -56,19 +52,17 @@ public class TestAgent extends TestZKBase {
 			if (stat == null) {
 				fail();
 			}
-			path = "/runtime/database/mysql/acctdb/servers/acctdb_3:10.10.10.10:5002";
+			path = "/runtime/database/mysql/acctdb/servers/acctdb_3";
 			stat = zk.exists(path, false);
 			if (stat == null) {
 				fail();
 			}
 
-			path = "/runtime/database/mysql/acctdb/"+DataBase.ACTIVE_NODE;
+			path = "/runtime/database/mysql/acctdb/" + DataBase.ACTIVE_NODE;
 			stat = zk.exists(path, false);
 			if (stat != null) {
 				fail();
 			}
-
-			
 
 		} catch (KeeperException e) {
 			e.printStackTrace();
@@ -76,7 +70,7 @@ public class TestAgent extends TestZKBase {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			fail();
-		}finally{
+		} finally {
 			agent.shutdown();
 		}
 
@@ -84,7 +78,7 @@ public class TestAgent extends TestZKBase {
 
 	public static Agent startAgent(Argument arg) {
 		Agent agent = new Agent(arg);
-		
+
 		try {
 			agent.start();
 		} catch (Exception e) {
@@ -108,48 +102,7 @@ public class TestAgent extends TestZKBase {
 		arg.masterAutoActive = false;
 		arg.zkserver = zkaddress;
 		arg.zkSessionTimeout = 1000;
-		DataBase db = new DataBase();
-		db.dbList = new ArrayList<DBDomain>();
-		DBDomain basedb = new DBDomain();
-		basedb.name = "basedb";
-		basedb.isPartition = false;
-		basedb.serverList = new ArrayList<DBServer>();
-		DBServer master = new DBServer();
-		master.address = "10.10.10.10";
-		master.port = 5000;
-		master.user = "dbmonitor";
-		master.password = "123";
-		master.role = DBRole.MASTER;
-		master.serverName = "basedb_1";
-
-		DBServer slave = new DBServer();
-		slave.address = "10.10.10.10";
-		slave.port = 5001;
-		slave.user = "dbmonitor";
-		slave.password = "1234";
-		slave.role = DBRole.SLAVE;
-		slave.serverName = "basedb_2";
-
-		basedb.serverList.add(master);
-		basedb.serverList.add(slave);
-
-		db.dbList.add(basedb);
-
-		DBDomain acctdb = new DBDomain();
-		acctdb.name = "acctdb";
-		acctdb.isPartition = false;
-		acctdb.serverList = new ArrayList<DBServer>();
-
-		slave = new DBServer();
-		slave.address = "10.10.10.10";
-		slave.port = 5002;
-		slave.user = "dbmonitor";
-		slave.password = "1234";
-		slave.role = DBRole.SLAVE;
-		slave.serverName = "acctdb_3";
-		acctdb.serverList.add(slave);
-		db.dbList.add(acctdb);
-		arg.db = db.toJsonString();
+		arg.db = "basedb.basedb_1, basedb.basedb_3 , acctdb.acctdb_3";
 		return arg;
 	}
 }
