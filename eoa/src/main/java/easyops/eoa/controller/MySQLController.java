@@ -15,7 +15,6 @@ public class MySQLController extends BaseDBController implements IDBController {
 	private int[] failCodes;
 	private int maxTry;
 
-
 	@Override
 	public void checkDB() {
 		checkDB(0);
@@ -92,7 +91,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 	}
 
 	private boolean isFailCode(int code) {
-		if(failCodes==null)
+		if (failCodes == null)
 			return false;
 		for (int fc : failCodes) {
 			if (code == fc) {
@@ -143,21 +142,48 @@ public class MySQLController extends BaseDBController implements IDBController {
 
 	@Override
 	public void shutDownDB() {
-		
-		
+
 	}
 
 	@Override
 	public void startDB() {
-		// TODO Auto-generated method stub
 		
+
 	}
 
 	@Override
 	public boolean activeDB() {
-		// TODO Auto-generated method stub
-		return false;
+		return setReadOnly();
+	}
+
+	public boolean setUnReadOnly(){
+		try {
+			if (conn.isClosed())
+				return false;
+			String cmd = "UNLOCK TABLES;";
+			if (!conn.createStatement().execute(cmd)) {
+				return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 	
+	public boolean setReadOnly() {
+		try {
+			if (conn.isClosed())
+				return false;
+			String cmd = "FLUSH TABLES WITH READ LOCK;";
+			if (!conn.createStatement().execute(cmd)) {
+				return false;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 
 }

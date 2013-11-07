@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
