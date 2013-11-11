@@ -138,7 +138,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.MASTER;
 		server.serverName = "basedb_1";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		server.agentId = server.address;
 		domain.serverList.add(server);
 
@@ -149,7 +149,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.SLAVE;
 		server.serverName = "basedb_2";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		domain.serverList.add(server);
 		
 		server = new DBServer();
@@ -159,7 +159,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.SLAVE;
 		server.serverName = "basedb_3";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		domain.serverList.add(server);
 
 		db.domainList.add(domain);
@@ -175,7 +175,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.SLAVE;
 		server.serverName = "acctdb_2";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		domain.serverList.add(server);
 
 		server = new DBServer();
@@ -185,7 +185,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.MASTER;
 		server.serverName = "acctdb_1";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		domain.serverList.add(server);
 
 		server = new DBServer();
@@ -195,7 +195,7 @@ public class TestZKBase implements Watcher {
 		server.role = DBRole.SLAVE;
 		server.serverName = "acctdb_3";
 		server.user = "dbmonitor";
-		server.password = "123";
+		server.password = "Qwert135%";
 		domain.serverList.add(server);
 
 		db.domainList.add(domain);

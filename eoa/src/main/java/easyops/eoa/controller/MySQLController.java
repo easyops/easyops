@@ -31,7 +31,6 @@ public class MySQLController extends BaseDBController implements IDBController {
 				return;
 			}
 			try {
-
 				conn = DriverManager.getConnection("jdbc:mysql://localhost:"
 						+ server.port, server.user, server.getPassword());
 			} catch (SQLException e) {

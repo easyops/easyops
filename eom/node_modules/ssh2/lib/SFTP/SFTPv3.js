@@ -240,7 +240,7 @@ SFTP.prototype.write = function(handle, buffer, offset, length, position, cb) {
 };
 
 function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
-  var concurrency = 25, chunkSize = 32768;
+  var concurrency = 25, chunkSize = 32768, step;
 
   if (typeof opts === 'function')
     cb = opts;
@@ -251,10 +251,12 @@ function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
     if (typeof opts.chunkSize === 'number' && opts.chunkSize > 0
         && !isNaN(opts.chunkSize))
       chunkSize = opts.chunkSize;
+    if (typeof opts.step === 'function')
+      step = opts.step;
   }
 
   // internal state variables
-  var fsize, chunk, psrc = 0, pdst = 0, reads = 0, total = 0, srcfd, dstfd,
+  var fsize, chunk, psrc = 0, pdst = 0, reads = 0, total = 0, srcfd, dstfd, total_done = 0,
       readbuf = new Buffer(chunkSize * concurrency);
 
   function onerror(err) {
@@ -265,16 +267,21 @@ function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
         if (--left === 0)
           cb(err);
       };
+      if (srcfd)
+        ++left;
+      if (dstfd)
+        ++left;
+      if (srcfd)
+        src.close(srcfd, cbfinal);
+      if (dstfd)
+        dst.close(dstfd, cbfinal);
     } else
       cb(err);
-    if (srcfd) {
-      ++left;
-      fs.close(srcfd, cbfinal);
-    }
-    if (dstfd) {
-      ++left;
-      src.close(dstfd, cbfinal);
-    }
+  }
+
+  function onstep(chunk, total) {
+    total_done += chunk;
+    step && step(total_done, chunk, total);
   }
 
   src.stat(srcPath, function(err, attrs) {
@@ -295,6 +302,8 @@ function fastXfer(src, dst, srcPath, dstPath, opts, cb) {
 
           dst.write(destfd, data, datapos || 0, nb, dstpos, function(err) {
             if (err) return onerror(err);
+
+            onstep(nb, fsize);
 
             if (--reads === 0) {
               if (total === fsize) {
