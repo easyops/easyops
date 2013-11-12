@@ -4,10 +4,8 @@
  */
 
 var express = require('express');
-
-var root = require('./routes');
-
-var  users= require('./routes/user');
+var root = require('./lib/routes');
+var filter = require("./lib/filter");
 var http = require('http');
 var path = require('path');
 
@@ -21,18 +19,23 @@ app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.cookieParser('your secret here'));
+app.use(express.cookieParser('%Qwert13579#'));
 app.use(express.session());
+app.use(filter.authFilter);
 app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // development only
 if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
-app.get('/user',users.list);
+app.get('/', root.index);
+app.get('/login', root.login);
+app.get('/doLogin', root.doLogin);
+app.get('/doLogout', root.doLogout);
+app.post('/doLogin', root.doLogin);
 
 
 http.createServer(app).listen(app.get('port'), function(){

@@ -165,7 +165,10 @@ function remoteCommand(cmd, host, callBack) {
 		});
 	});
 	c.on('error', function(err) {
+		error = err;
 		console.log('Connection :: error :: ' + err);
+		stderr = err;
+		callBack(error, stdout, stderr);
 	});
 	c.on('end', function() {
 		console.log('Connection :: end');

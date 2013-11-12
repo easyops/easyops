@@ -59,7 +59,6 @@ describe("excute command", function() {
 			done();
 		};
 		c.send();
-
 	});
 	
 });
