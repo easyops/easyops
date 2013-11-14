@@ -38,15 +38,16 @@ public class TestShell {
 				"-zkSessionTimeout=1000",
 				"-dbcheckInterval=3000",
 				"-dbCheckMaxTry=3",
-				"-failCodes=1,3,4,5",
+				"-failCodes=1,3,4,5,100-105",
 				"-freezeTime=10000",
 				"-db=basedb.basedb_1, basedb.basedb_3, acctdb.acctdb_3"};
 		Argument a = new Argument();
 		new JCommander(a, par);
 		assertEquals(a.id, "4test");
 		assertEquals(a.dbCheckInteral, 3000);
-		assertEquals(a.failCodes.length, 4);
+		assertEquals(a.failCodes.length, 10);
 		assertEquals(a.failCodes[0], 1);
+		assertEquals(a.failCodes[8],104) ;
 		DataBase db = DataBase.buildDB(a.db);
 		assertEquals(db.domainList.size(), 2);
 		assertEquals(db.domainList.get(0).isPartition, false);

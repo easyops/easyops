@@ -31,8 +31,9 @@ public class MySQLController extends BaseDBController implements IDBController {
 				return;
 			}
 			try {
-				conn = DriverManager.getConnection("jdbc:mysql://localhost:"
-						+ server.port, server.user, server.getPassword());
+				conn = DriverManager.getConnection("jdbc:mysql://"
+						+ server.address + ":" + server.port, server.user,
+						server.getPassword());
 			} catch (SQLException e) {
 				e.printStackTrace();
 				if (isFailCode(e.getErrorCode())) {
@@ -64,6 +65,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 					setValid(true);
 					return;
 				} else {
+					conn = null;
 					if (count >= maxTry) {
 						setValid(false);
 						setMessage("Connection is not valid! try " + count);
@@ -74,6 +76,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 					}
 				}
 			} catch (SQLException e) {
+				conn = null;
 				e.printStackTrace();
 				if (isFailCode(e.getErrorCode())) {
 					if (count >= maxTry) {
@@ -146,21 +149,22 @@ public class MySQLController extends BaseDBController implements IDBController {
 
 	@Override
 	public void startDB() {
-		
 
 	}
 
 	@Override
 	public boolean activeDB() {
-		return setReadOnly();
+		return setUnReadOnly();
 	}
 
-	public boolean setUnReadOnly(){
+	public boolean setUnReadOnly() {
 		try {
 			if (conn.isClosed())
 				return false;
 			String cmd = "UNLOCK TABLES;";
-			if (!conn.createStatement().execute(cmd)) {
+			try {
+				conn.createStatement().execute(cmd);
+			} catch (SQLException e) {
 				return false;
 			}
 		} catch (SQLException e) {
@@ -169,7 +173,7 @@ public class MySQLController extends BaseDBController implements IDBController {
 		}
 		return true;
 	}
-	
+
 	public boolean setReadOnly() {
 		try {
 			if (conn.isClosed())

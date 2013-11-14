@@ -1,5 +1,6 @@
 package easyops.eoa.resource;
 
+import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
@@ -35,9 +36,8 @@ public class DBServer extends BaseObject {
 	public long freezeStamp = 0;
 	@Expose
 	public long checkInStamp = 0;
-	
-	
-	
+
+	private static Logger log = Logger.getLogger(DBServer.class);
 	public IDBController controller;
 
 	public DBStatus getStatus() {
@@ -47,8 +47,6 @@ public class DBServer extends BaseObject {
 	public void setStatus(DBStatus status) {
 		this.status = status;
 	}
-
-
 
 	public Watcher lockWatch;
 
@@ -73,9 +71,9 @@ public class DBServer extends BaseObject {
 		try {
 			znode.zk.exists(getLockPath(), this.lockWatch);
 		} catch (KeeperException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 	}
 
@@ -119,7 +117,7 @@ public class DBServer extends BaseObject {
 		}.getType());
 		return server;
 	}
-	
+
 	public void setValuefromJson(String json) {
 		Gson g = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
 				.create();
@@ -135,23 +133,17 @@ public class DBServer extends BaseObject {
 		this.serverName = server.serverName;
 		this.status = server.status;
 		this.user = server.user;
-		
+
 	}
 
 	public boolean active() {
-		ZNode lockNode = getLockNode();
-		if (lockNode != null) {
-			lockNode.delete();
-		}
-
-		lockNode = createLockNode();
-		lockNode.setData(getMark());
-		lockNode.createMode = CreateMode.EPHEMERAL;
-		if (lockNode.create()) {
+		if (lockNode()) {
 			if (controller.activeDB()) {
-				changeActiveNode();
+				lockActiveNode();
+				log.info("active db success, db:" + this.getMark());
 				setStatus(DBStatus.Active);
 			} else {
+				log.info("active db fail , db:" + this.getMark());
 				deactive();
 				freezeStamp = System.currentTimeMillis();
 			}
@@ -162,7 +154,7 @@ public class DBServer extends BaseObject {
 		return true;
 	}
 
-	private void changeActiveNode() {
+	public void lockActiveNode() {
 		ZNode mnode = znode.pnode.pnode.getChild(DataBase.ACTIVE_NODE);
 		if (noActiveNode(mnode)) {
 			if (mnode == null) {
@@ -171,12 +163,10 @@ public class DBServer extends BaseObject {
 			mnode.createMode = CreateMode.EPHEMERAL;
 			mnode.setData(getMark());
 			mnode.create();
-		}else{
+		} else {
 			mnode.setData(getMark());
 			mnode.save();
 		}
-
-		
 
 	}
 
@@ -185,6 +175,7 @@ public class DBServer extends BaseObject {
 		if (lockNode != null) {
 			if (lockNode.getStringData().equals(getMark())) {
 				lockNode.delete();
+				log.info("DB(" + this.getMark() + ") delete the lock node");
 				if (getStatus() == DBStatus.Active) {
 					setStatus(DBStatus.Running);
 				}
@@ -196,7 +187,7 @@ public class DBServer extends BaseObject {
 	public void initActiveNode() {
 
 		if (role == DBRole.MASTER) {
-			changeActiveNode();
+			lockActiveNode();
 		}
 
 	}
@@ -212,6 +203,17 @@ public class DBServer extends BaseObject {
 			}
 		}
 		return isNone;
+	}
+
+	public boolean lockNode() {
+		ZNode lockNode = getLockNode();
+		if (lockNode != null) {
+			lockNode.delete();
+		}
+		lockNode = createLockNode();
+		lockNode.setData(getMark());
+		lockNode.createMode = CreateMode.EPHEMERAL;
+		return lockNode.create();
 	}
 
 }
