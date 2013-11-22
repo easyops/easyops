@@ -7,6 +7,7 @@ var Domain = function(){
 };
 
 var Host  = function(){
+	this.id = "";
 	this.address = "";	
 	this.user="p0bm2";
 	this.port=22;

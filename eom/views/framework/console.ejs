@@ -1,0 +1,33 @@
+<div>
+	<textarea id="output" cols="400" rows="20">
+</textarea>
+	<button id="but" onclick="sendMessage();">SEND</button>
+</div>
+<script>
+	var socket;
+	var clientId = new Date().getTime();
+	function init() {
+		socket = io.connect('http://localhost:3000');
+		socket.on('hello', function(data) {
+			socket.emit('register', clientId);
+		});
+		socket.on("message", function(data) {
+			output.value += "\n" + data;
+		})
+	}
+	function sendMessage() {
+		$.ajax({
+			type : "POST",
+			url : "/sendMessage",
+			data : {
+				clientId : clientId,
+				message : new Date().getTime()
+			},
+			success : function(data, textStatus, jqXHR) {
+
+			},
+			dataType : "json"
+		});
+	}
+</script>
+

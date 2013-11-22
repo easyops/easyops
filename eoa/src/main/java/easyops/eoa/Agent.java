@@ -19,6 +19,7 @@ import easyops.eoa.monitor.DBMonitor;
 import easyops.eoa.resource.DBDomain;
 import easyops.eoa.resource.DBPartition;
 import easyops.eoa.resource.DBServer;
+import easyops.eoa.resource.DBStatus;
 import easyops.eoa.resource.DataBase;
 import easyops.eoa.ui.MyZooKeeper;
 import easyops.eoa.ui.arguments.Argument;
@@ -154,7 +155,8 @@ public class Agent implements Watcher {
 			ZNode znode = pnode.addChild(server.serverName);
 			znode.sychronize();
 			server.znode = znode;
-			server.setValuefromJson(znode.getStringData());			
+			server.setValuefromJson(znode.getStringData());	
+			server.setStatus(DBStatus.Down);
 			server.initActiveNode();
 			server.setLockWatcher(new ActiveLockWatcher(server, arg.freezeTime));
 		}

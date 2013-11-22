@@ -9,6 +9,21 @@ exports.index = function(req, res) {
 	});
 
 };
+
+exports.console = function(req, res) {
+	res.render("console");
+};
+
+exports.sendMessage = function(req, res) {
+	var mes = req.param("message");
+	var clientId = req.param("clientId");
+	global.socket_io.sockets.clients().forEach(function(socket) {
+		if (socket.clientId == clientId) {
+			socket.emit("message", mes);
+		}
+	});
+};
+
 exports.login = function(req, res) {
 	res.render('login');
 };

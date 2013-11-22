@@ -156,11 +156,11 @@ public class DBServer extends BaseObject {
 
 	public void lockActiveNode() {
 		ZNode mnode = znode.pnode.pnode.getChild(DataBase.ACTIVE_NODE);
+		if (mnode == null) {
+			mnode = znode.pnode.pnode.addChild(DataBase.ACTIVE_NODE);
+		}
 		if (noActiveNode(mnode)) {
-			if (mnode == null) {
-				mnode = znode.pnode.pnode.addChild(DataBase.ACTIVE_NODE);
-			}
-			mnode.createMode = CreateMode.EPHEMERAL;
+			mnode.createMode = CreateMode.PERSISTENT;
 			mnode.setData(getMark());
 			mnode.create();
 		} else {
@@ -187,7 +187,9 @@ public class DBServer extends BaseObject {
 	public void initActiveNode() {
 
 		if (role == DBRole.MASTER) {
-			lockActiveNode();
+			if (noActiveNode(getLockNode())) {
+				lockActiveNode();
+			}
 		}
 
 	}
