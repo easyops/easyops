@@ -1,88 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
 <%include framework/head.ejs%>
-<body>
-<%include framework/top.ejs%>
-<%include framework/left.ejs%>
-<!--/span-->
-<div class="span9">
-    <div class="hero-unit">
-        <h1>Hello, world!</h1>
+<%include framework/header.ejs%>
 
-        <p>This is a template for a simple marketing or informational website. It includes a large callout
-            called the hero unit and three supporting pieces of content. Use it as a starting point to create
-            something more unique.</p>
 
-        <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+<div class="mix-wrapper" style="bottom: 200px">
+    <div class="container">
+        <ol class="breadcrumb" ng-controller="breadcrumbController">
+            <li>
+                <a ng-href="#/home" class="{{breadcrumb['/home']}}">
+                    1. 创建环境搭建模式
+                </a>
+            </li>
+            <li>
+                <a ng-href="#/createUser" class="{{breadcrumb['/createUser']}}">
+                    2. 创建用户和口令
+                </a>
+            </li>
+            <li>
+                <a ng-href="#/associateHost" class="{{breadcrumb['/associateHost']}}">
+                    3. 关联主机信息
+                </a>
+            </li>
+            <li>
+                <a ng-href="#/deployment" class="{{breadcrumb['/deployment']}}">
+                    4. 安装和部署
+                </a>
+            </li>
+            <li>
+                <a ng-href="#/initEnv" class="{{breadcrumb['/initEnv']}}">
+                    5. 执行初始化
+                </a>
+            </li>
+        </ol>
+        <div ng-view></div>
     </div>
-    <div class="row-fluid">
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-    </div>
-    <!--/row-->
-    <div class="row-fluid">
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-        <div class="span4">
-            <h2>Heading</h2>
-
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-                mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada
-                magna mollis euismod. Donec sed odio dui. </p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-        </div>
-        <!--/span-->
-    </div>
-    <!--/row-->
 </div>
-<%include framework/bottom.ejs%>
-<%include framework/end.ejs%>
-</body>
-</html>
+
+<%include framework/foot.ejs%>
+
+
+
+
+
+
