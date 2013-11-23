@@ -1,0 +1,171 @@
+/* 目前，所有页面的样式都放在这个文件中 */
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+.navbar-inverse .mix-login {
+    color: #fff;
+}
+
+.mix-wrapper {
+
+    border-bottom: 0;
+    position: absolute;
+    top: 51px;
+    left: 0;
+    right: 0;
+    bottom: 200px;
+    overflow: auto;
+}
+.mix-wrapper > .container {
+    border: 1px solid #ccc;
+    min-height: 100%;/* ie8可能会有问题 */
+}
+
+.mix-total-progress {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 15px;
+}
+
+/* home.html 首页 */
+.mix-step1 {
+
+}
+.mix-step1-left, .mix-step1-right {
+    padding: 15px;
+}
+.mix-step1-right {
+    border-left: 1px solid #ccc;
+}
+.mix-step1-left .mix-btn-go {
+    padding-top: 20px;
+    text-align: center;
+}
+
+.mix-model-list {
+    padding: 15px;
+    border: 1px solid #ccc;
+}
+.mix-log {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 0;
+}
+.mix-log .panel-heading {
+    border-radius: 0;
+}
+.mix-log .mix-btn-group span {
+    cursor: pointer;
+    margin-left: 10px;
+}
+.mix-log .panel-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: absolute;
+    top: 37px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.mix-install-tip .alert {
+    margin-top: 10px;
+}
+.mix-install-tip .alert a {
+    font-weight: normal;
+}
+/* createuser.html 第二步，创建您的用户和口令 */
+.mix-createrule {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.mix-createrule .mix-namerule {
+    margin-bottom: 20px;
+}
+
+/* associateHost.html 第三步，关联主机信息 */
+.mix-asothost .mix-ip > .col-md-3 {
+    position: relative;
+}
+.mix-asothost .mix-ip > .col-md-3:after {
+    content: ":";
+    font-weight: bold;
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 6px;
+}
+.mix-asothost .mix-ip > .col-md-3:first-child:after {
+    display: none;
+}
+.mix-asothost .mix-addhost {
+    text-align: center;
+}
+.mix-asothost .mix-addhost > .btn {
+    outline: none;
+}
+.mix-asothost .mix-successset {
+    text-align: center;
+    padding-bottom: 40px;
+}
+
+.eom-complete {
+    background-color: red;
+}
+
+/* deployment.html 第四步，安装和部署 */
+
+.mix-deployment .mix-successset {
+    text-align: center;
+    padding-bottom: 40px;
+}
+
+/* initEvn.html 第五步，执行初始化 */
+.mix-initEnv .progress {
+    margin-bottom: 0;
+}
+.mix-initEnv .mix-subprogress > td {
+    padding: 0;
+}
+.mix-initEnv .mix-subprogress .table {
+    margin-bottom: 0;
+}
+.mix-initEnv .mix-subprogress .table td {
+    border-top: 0;
+    border-left: 1px solid #ddd;
+}
+.mix-initEnv .mix-subprogress .table td:first-child {
+    border-left: 0;
+}
+.mix-initEnv .mix-subtable > td {
+    padding: 0;
+}
+.mix-initEnv .mix-subtable .table td {
+    padding-left: 25px;
+}
+.mix-initEnv .table caption {
+    text-align: left;
+    padding: 10px 0;
+}
+.table-striped > tbody > tr:nth-child(odd) > td,
+.table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #f6f6f6;
+}
+.mix-subtable .table-striped > tbody > tr:nth-child(odd) > td,
+.mix-subtable .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #fcfcfc;
+}
+.table-striped > tbody > tr:hover > td,
+.table-striped > tbody > tr:hover > th,
+.mix-subtable .table-striped > tbody > tr:hover > td,
+.mix-subtable .table-striped > tbody > tr:hover > th {
+    background-color: #f1f1f1;
+}
