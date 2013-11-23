@@ -1,17 +1,17 @@
 var ZNode = require("../../../lib/res/zk");
-
-var Task = function(){
+var CountDown = require("../../common/util.js").CountDown;
+var Task = function() {
 	var title = "";
 	var description = "";
 	var subTask = [];
 	var curSubTask;
 	var allWorkLoad = 100;
 	var completeWorkLoad = 0;
-	//function
+	// function
 	var precheck;
-	//function
+	// function
 	var process;
-	//function
+	// function
 	var finish;
 	// show page uri
 	var page;
@@ -39,6 +39,53 @@ Task.prototype.queryConfig = function(callBack) {
 	});
 };
 
+Task.prototype.checkConfigs = function(configs, callBack, checkFunc) {
+	var cd = new CountDown(configs.length, function() {
+		var result = true;
+		for (var i = 0; i < configs.length; i++) {
+			if (configs[i].result === false) {
+				result = false;
+			}
+		}
+		callBack(result);
+	});
+	console.log("got %s configs from zk", configs.length);
+	configs.forEach(function(e, i, a) {
+		checkFunc(e, cd);
+	});
+};
+Task.prototype.filterConfig = function(hosts, configs) {
+	if (hosts) {
+		for (var i = 0; i < configs.length; i++) {
+			for (var k = 0; k < hosts.length; k++) {
+				if (hosts[k].id == configs[i].id) {
+					configs[i].result = 0;
+				}
+			}
+		}
+	} else {
+		for (var j = 0; j < configs.length; j++) {
+			configs[j].result = 0;
+		}
+	}
+};
+
+Task.prototype.check = function(hosts, callBack) {
+	var self = this;
+	this.queryConfig(function(error, configs) {
+		if (error) {
+			callBack(error, self);
+			return;
+		} else {
+			self.filterConfig(hosts, configs);
+			self.subTask = configs;
+			self.checkConfigs(configs, function(result) {
+				self.result = result;
+				callBack(null, self);
+			}, self.checkUnit);
+		}
+	});
+};
 Task.prototype.saveConfig = function(configs, callBack) {
 	var task = this;
 	var client = global.zkCli;
@@ -47,7 +94,7 @@ Task.prototype.saveConfig = function(configs, callBack) {
 		if (error) {
 			callBack(error);
 			return;
-		}		
+		}
 		var tx = client.transaction();
 		for (var i = 0; i < node.children.length; i++) {
 			tx.remove(node.children[i].path);
@@ -56,7 +103,7 @@ Task.prototype.saveConfig = function(configs, callBack) {
 			tx.create(task.configPath + "/" + configs[i].id, new Buffer(JSON
 					.stringify(configs[i])));
 		}
-		tx.commit(function(error, results) {			
+		tx.commit(function(error, results) {
 			if (error) {
 				console.log(
 						'Failed to execute the transaction: %s, results: %j',

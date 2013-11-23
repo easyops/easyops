@@ -2,9 +2,8 @@ var should = require('should');
 var zookeeper = require('node-zookeeper-client');
 var Host = require("../../../lib/res/host");
 var HCT = require("../../../lib/bizz/install_wizard/host_config.js");
-var HostCheck = HCT.HostCheckTask;
 
-describe("test task function", function() {
+describe("test host task function", function() {
 	before(function(done) {
 		var client = zookeeper.createClient('localhost:2181');
 		client.once('connected', function() {
@@ -12,10 +11,9 @@ describe("test task function", function() {
 			done();
 		});
 		client.connect();
-	});
-	
+	});	
 	it("test for checking host", function(done) {
-		var checker = new HostCheck();
+		var checker = new HCT();
 		checker.check(null, function(error, chk) {
 			if (error){
 				console.error(error);				
