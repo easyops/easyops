@@ -32,6 +32,7 @@ Cmd.prototype.send = function() {
 };
 
 function sftp(cmd, source, target, host, callBack) {
+	var emitter = global.emitter;
 	var error;
 	var stdout;
 	var stderr;
@@ -44,7 +45,7 @@ function sftp(cmd, source, target, host, callBack) {
 			concurrency : 25,
 			chunkSize : 32768,
 			step : function(tt, c, t) {
-				console.log("tt:" + tt + ", c:" + c + ",t:" + t + "\n");
+				console.log("tt:" + tt + ", c:" + c + ",t:" + t + "\n");				
 			}
 		};
 		console.log('Connection :: ready');
@@ -113,11 +114,25 @@ function sftp(cmd, source, target, host, callBack) {
 }
 
 function localCommand(cmd, callBack) {
+	var emitter = global.emitter;
 	var child = exec(cmd, function(error, stdout, stderr) {
 		console.log('stdout: ' + stdout);
 		console.log('stderr: ' + stderr);
+		if(emitter){
+		emitter.emit("stdout", {
+			message : stdout
+		});
+		emitter.emit("stderr", {
+			message : stderr
+		});
+		}
 		if (error !== null) {
 			console.log('exec error: ' + error);
+			if(emitter){
+			emitter.emit("error", {
+				message : error
+			});
+			}
 		}
 		if (callBack) {
 			callBack(error, stdout, stderr);
@@ -126,6 +141,7 @@ function localCommand(cmd, callBack) {
 }
 
 function remoteCommand(cmd, host, callBack) {
+	var emitter = global.emitter;
 	var error;
 	var stdout;
 	var stderr;
@@ -149,6 +165,11 @@ function remoteCommand(cmd, host, callBack) {
 				}
 				console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ')
 						+ data);
+				if(emitter){
+				emitter.emit(extended === 'stderr' ? 'stderr' : 'stdout', {
+					message : data
+				});
+				}
 			});
 			stream.on('end', function() {
 				console.log('Stream :: EOF');

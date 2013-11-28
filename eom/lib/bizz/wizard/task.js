@@ -7,16 +7,19 @@ var Task = function() {
 	var curSubTask;
 	var allWorkLoad = 100;
 	var completeWorkLoad = 0;
-	// function
-	var precheck;
-	// function
-	var process;
-	// function
-	var finish;
 	// show page uri
 	var page;
 	// run result: true or false;
 	var result;
+};
+Task.prototype.process = function() {
+	console.log("not implemented");
+};
+Task.prototype.finish = function() {
+	console.log("not implemented");
+};
+Task.prototype.procheck = function() {
+	console.log("not implemented");
 };
 Task.prototype.configPath = "";
 Task.prototype.queryConfig = function(callBack) {
@@ -80,6 +83,7 @@ Task.prototype.check = function(hosts, callBack) {
 			self.filterConfig(hosts, configs);
 			self.subTask = configs;
 			self.checkConfigs(configs, function(result) {
+				console.log("result:"+result);
 				self.result = result;
 				callBack(null, self);
 			}, self.checkUnit);

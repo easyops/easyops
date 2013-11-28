@@ -1,9 +1,8 @@
 var Task = require("../wizard").Task;
 var Cmd = require("../../res/cmd");
-var HostConfigTask = function(wizard) {
+var HostConfigTask = function() {
 	this.title = "configuration for host";
 	this.description = "";
-	this.wizard = wizard;
 };
 HostConfigTask.prototype = new Task();
 HostConfigTask.prototype.configPath = "/config/system/deployment/hosts";

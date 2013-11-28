@@ -1,8 +1,9 @@
 var Task = require("../wizard").Task;
 var mysql = require('mysql');
-var DBConfigTask = function() {
+var DBConfigTask = function(wizard) {
 	this.title = "configuration for databse";
 	this.description = "";
+	this.wizard = wizard;
 };
 DBConfigTask.prototype = new Task();
 DBConfigTask.prototype.configPath = "/config/system/deployment/dbconfigs";

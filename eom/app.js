@@ -47,6 +47,7 @@ var server = http.createServer(app).listen(app.get('port'), function() {
 io = require('socket.io').listen(server);
 global.socket_io = io;
 io.sockets.on('connection', function(socket) {
+	global.emitter = socket;
 	socket.emit('hello', {
 		hello : 'world'
 	});
