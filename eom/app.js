@@ -13,6 +13,7 @@ var filter = require("./lib/filter");
 var http = require('http');
 var path = require('path');
 var zookeeper = require('node-zookeeper-client');
+var logger = require('./lib/common/util').logger;
 
 var app = express();
 // all environments
@@ -45,15 +46,11 @@ var server = http.createServer(app).listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
 });
 io = require('socket.io').listen(server);
-global.socket_io = io;
 io.sockets.on('connection', function(socket) {
-	global.emitter = socket;
+	logger.outer = socket;
+	global.logger = logger;
 	socket.emit('hello', {
 		hello : 'world'
-	});
-	socket.on('register', function(data) {
-		console.log("client id:" + data);
-		socket.clientId = data;
 	});
 });
 

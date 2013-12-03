@@ -1,10 +1,15 @@
 var Host = require("../host");
 var Connection = require('ssh2');
 var exec = require('child_process').exec;
+var logger = require('../../common/util').logger;
 
 var Cmd = function(cmd, type, args, host, callBack) {
 	this.cmdLine = cmd;
-	this.args = args;
+	if (args) {
+		this.args = args;
+	} else {
+		this.args = [];
+	}
 	this.ret = true;
 	this.type = type;
 	if (type != "local") {
@@ -16,18 +21,95 @@ var Cmd = function(cmd, type, args, host, callBack) {
 	}
 	this.message = "";
 	this.callBack = callBack;
+	this.stdout = null;
+	this.stderr = null;
+	this.error = null;
+	this.exec_code = 0;
 };
 
-Cmd.prototype.send = function() {
+Cmd.prototype.remoteCommand =  function () {
+	var emitter = global.emitter;
+	var error;
+	var stdout;
+	var stderr;
+	var self = this;
+	var host = this.host;
+	var c = new Connection();
+	c.on('connect', function() {
+		logger.info('Connection :: connect');
+	});
+	c.on('ready', function() {
+		logger.info('Connection :: ready');
+		c.exec(self.cmdLine, function(err, stream) {
+			if (!err) {
+				error = null;
+			} else {
+				error = err;
+			}
+			stream.on('data', function(data, extended) {
+				if (extended === 'stderr') {
+					stderr += data;
+				} else {
+					stdout += data;
+				}
+				logger.info((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ')
+						+ data);
+			});
+			stream.on('end', function() {
+				logger.info('Stream :: EOF');
+			});
+			stream.on('close', function() {
+				logger.info('Stream :: close');
+				self.stdout = stdout;
+				self.stderr = stderr;
+				self.error = error;
+				if (self.callBack) {
+					self.callBack(error, stdout, stderr);
+				}
+			});
+			stream.on('exit', function(code, signal) {
+				logger.info('Stream :: exit :: code: ' + code + ', signal: '
+						+ signal);
+				self.exec_code = code;
+				c.end();
+			});
+		});
+	});
+	c.on('error', function(err) {
+		error = err;
+		logger.error('Connection :: error :: ' + err);
+		stderr = err;
+		if(self.callBack){
+			self.callBack(error, stdout, stderr);
+		}
+	});
+	c.on('end', function() {
+		logger.info('Connection :: end');
+	});
+	c.on('close', function(had_error) {
+		logger.info('Connection :: close');
+	});
+	c.connect({
+		host : host.address,
+		port : host.port,
+		username : host.user,
+		password : host.password
+	});
+};
+
+Cmd.prototype.send = function(callBack) {
+	if (callBack) {
+		this.callBack = callBack;
+	}
 	if (this.type == "sftp") {
 		sftp(this.cmdLine, this.args[0], this.args[1], this.host, this.callBack);
-		console.log("sftp command :" + this.cmdLine);
+		logger.info("sftp command :" + this.cmdLine);
 	} else if (this.type == "remote") {
-		remoteCommand(this.cmdLine, this.host, this.callBack);
-		console.log("remote command is :" + this.cmdLine);
+		this.remoteCommand();
+		logger.info("remote command is :" + this.cmdLine);
 	} else {
 		localCommand(this.cmdLine, this.callBack);
-		console.log("local command is: " + this.cmdLine);
+		logger.info("local command is: " + this.cmdLine);
 	}
 };
 
@@ -38,17 +120,17 @@ function sftp(cmd, source, target, host, callBack) {
 	var stderr;
 	var c = new Connection();
 	c.on('connect', function() {
-		console.log('Connection :: connect');
+		logger.info('Connection :: connect');
 	});
 	c.on('ready', function() {
 		var opts = {
 			concurrency : 25,
 			chunkSize : 32768,
 			step : function(tt, c, t) {
-				console.log("tt:" + tt + ", c:" + c + ",t:" + t + "\n");				
+				logger.info("tt:" + tt + ", c:" + c + ",t:" + t + "\n");
 			}
 		};
-		console.log('Connection :: ready');
+		logger.info('Connection :: ready');
 		c.sftp(function(err, sftp) {
 			if (err) {
 				error = err;
@@ -56,10 +138,10 @@ function sftp(cmd, source, target, host, callBack) {
 				error = null;
 			}
 			sftp.on('end', function() {
-				console.log('SFTP :: SFTP session closed');
+				logger.info('SFTP :: SFTP session closed');
 			});
 			if (cmd == "get") {
-				console.log("From host=" + host + ", get file=" + target
+				logger.info("From host=" + host + ", get file=" + target
 						+ ", save to file=" + source + "\n");
 				sftp.fastGet(target, source, opts, function(err) {
 					if (err)
@@ -73,15 +155,18 @@ function sftp(cmd, source, target, host, callBack) {
 					c.end();
 					if (callBack) {
 						callBack(error, stdout, stderr);
+					} else {
+						logger.info("no callBack function");
 					}
 				});
 			} else if (cmd == "put") {
-				console.log("To host=" + host + ", put file=" + target
-						+ ", frome local file=" + source + "\n");
+				logger.info("To host=" + host + ", put file=" + target
+						+ ", from local file=" + source + "\n");
 				sftp.fastPut(source, target, opts, function(err) {
-					if (err)
+					if (err) {
 						error = err;
-					else {
+						console.error(err);
+					} else {
 						error = null;
 						stdout = source;
 						stderr = "";
@@ -96,13 +181,13 @@ function sftp(cmd, source, target, host, callBack) {
 		});
 	});
 	c.on('error', function(err) {
-		console.log('Connection :: error :: ' + err);
+		logger.info('Connection :: error :: ' + err);
 	});
 	c.on('end', function() {
-		console.log('Connection :: end');
+		logger.info('Connection :: end');
 	});
 	c.on('close', function(had_error) {
-		console.log('Connection :: close');
+		logger.info('Connection :: close');
 	});
 	c.connect({
 		host : host.address,
@@ -114,25 +199,14 @@ function sftp(cmd, source, target, host, callBack) {
 }
 
 function localCommand(cmd, callBack) {
-	var emitter = global.emitter;
+
 	var child = exec(cmd, function(error, stdout, stderr) {
-		console.log('stdout: ' + stdout);
-		console.log('stderr: ' + stderr);
-		if(emitter){
-		emitter.emit("stdout", {
-			message : stdout
-		});
-		emitter.emit("stderr", {
-			message : stderr
-		});
-		}
+
+		logger.info(stdout);
+		logger.error(stderr);
+
 		if (error !== null) {
-			console.log('exec error: ' + error);
-			if(emitter){
-			emitter.emit("error", {
-				message : error
-			});
-			}
+			logger.info('exec error: ' + error);
 		}
 		if (callBack) {
 			callBack(error, stdout, stderr);
@@ -140,68 +214,5 @@ function localCommand(cmd, callBack) {
 	});
 }
 
-function remoteCommand(cmd, host, callBack) {
-	var emitter = global.emitter;
-	var error;
-	var stdout;
-	var stderr;
-	var c = new Connection();
-	c.on('connect', function() {
-		console.log('Connection :: connect');
-	});
-	c.on('ready', function() {
-		console.log('Connection :: ready');
-		c.exec('uptime', function(err, stream) {
-			if (!err) {
-				error = null;
-			} else {
-				error = err;
-			}
-			stream.on('data', function(data, extended) {
-				if (extended === 'stderr') {
-					stderr += data;
-				} else {
-					stdout += data;
-				}
-				console.log((extended === 'stderr' ? 'STDERR: ' : 'STDOUT: ')
-						+ data);
-				if(emitter){
-				emitter.emit(extended === 'stderr' ? 'stderr' : 'stdout', {
-					message : data
-				});
-				}
-			});
-			stream.on('end', function() {
-				console.log('Stream :: EOF');
-			});
-			stream.on('close', function() {
-				console.log('Stream :: close');
-				callBack(error, stdout, stderr);
-			});
-			stream.on('exit', function(code, signal) {
-				console.log('Stream :: exit :: code: ' + code + ', signal: '
-						+ signal);
-				c.end();
-			});
-		});
-	});
-	c.on('error', function(err) {
-		error = err;
-		console.log('Connection :: error :: ' + err);
-		stderr = err;
-		callBack(error, stdout, stderr);
-	});
-	c.on('end', function() {
-		console.log('Connection :: end');
-	});
-	c.on('close', function(had_error) {
-		console.log('Connection :: close');
-	});
-	c.connect({
-		host : host.address,
-		port : host.port,
-		username : host.user,
-		password : host.password
-	});
-}
+
 module.exports = Cmd;

@@ -1,12 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<script src="/socket.io/socket.io.js"></script>
-<head>
-<%include framework/head.ejs%>
+
+<head><%include framework/head.ejs%>
 </head>
 <body onLoad="init();">
-<%include framework/console.ejs%>
-<%include framework/bottom.ejs%>
-<%include framework/end.ejs%>
+	<textarea id="console_view" rows="10" cols="100">begin
+	</textarea>
+	<br>
+	<input onclick="send();" type="button" name="send_command" id= "send_command"/>
+	<%include framework/bottom.ejs%> <%include framework/end.ejs%>
 </body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	function send(){
+		$.ajax({
+			type : "POST",
+			url : "/sendMessage",
+			data : {
+				command : "dir"
+			},
+			success : function(data, textStatus, jqXHR) {
+					
+			},
+			dataType : "json"
+		});
+	};
+
+	function init() {
+		var socket = io.connect('http://localhost:3000');
+		socket.on('hello', function(data) {
+			alert(data);
+		});
+		socket.on('info', function(data){
+			console_view.innerText += data.message;
+		});
+		socket.on('error', function(data){
+			console_view.text += data;
+		});		
+
+	}
+</script>
+<%include framework/foot.ejs%>
 </html>

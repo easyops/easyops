@@ -21,6 +21,9 @@ test_bizz:
 test_mw:
 	$(cmd)  $(test_dir)/lib/bizz/mw.js
 	
+test_host:
+	$(cmd) $(test_dir)/lib/bizz/host.js
+	
 coverage:
 	$(test_command) $(use_blanket) -R html-cov > $(coverage_file)
 	

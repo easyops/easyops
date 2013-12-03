@@ -10,13 +10,12 @@ exports.console = function(req, res) {
 };
 
 exports.sendMessage = function(req, res) {
-	var mes = req.param("message");
-	var clientId = req.param("clientId");
-	global.socket_io.sockets.clients().forEach(function(socket) {
-		if (socket.clientId == clientId) {
-			socket.emit("message", mes);
-		}
-	});
+	var str = req.param("command");
+	var Cmd = require("../res/cmd");
+	var cmd = new Cmd();
+	cmd.cmdLine = str;
+	cmd.type = "local";
+	cmd.send();
 };
 
 exports.login = function(req, res) {
