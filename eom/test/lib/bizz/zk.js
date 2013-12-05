@@ -204,7 +204,7 @@ describe("hosts configuration test", function() {
 			global.zkCli = client;
 			var hct = new HCT();
 			hct.queryConfig(function(error, hosts) {
-				hosts.length.should.equal(2);
+				hosts.length.should.equal(3);
 				//hosts[0].should.have.property("address", "10.10.12.83");
 				client.close();
 			});

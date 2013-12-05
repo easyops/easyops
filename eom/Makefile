@@ -15,8 +15,14 @@ test:
 	$(cmd) $(test_dir)
 test_res:	
 	$(cmd)  $(test_dir)/lib/res
-test_bizz:
-	$(cmd)  $(test_dir)/lib/bizz
+	
+test_zk:
+	$(cmd)  $(test_dir)/lib/bizz/zk.js	
+	
+test_bizz: test_mw test_host test_db
+
+test_db: 	
+	$(cmd)  $(test_dir)/lib/bizz/db.js
 	
 test_mw:
 	$(cmd)  $(test_dir)/lib/bizz/mw.js

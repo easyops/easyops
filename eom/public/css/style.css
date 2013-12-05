@@ -30,11 +30,137 @@ body {
     border-bottom: 1px solid #ccc;
     padding-bottom: 15px;
 }
+h3 {
+    margin-top: 0;
+    font-family: '微软雅黑';
+}
+h3 + p {
+    margin: 18px 0;
+}
+i.glyphicon {
+    cursor: pointer;
+}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+    vertical-align: middle;
+}
+caption {
+    text-align: left;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    background-color: #eaeaea;
+}
+.table-bordered > thead > tr > th,
+.table-bordered > thead > tr > td {
+    border-top: 0;
+    border-bottom-width: 1px;
+    background-color: #ececec;
+}
+.form-horizontal .checkbox {
+    margin-bottom: 10px;
+}
+.form-horizontal .checkbox input {
+    margin-top: 2px;
+}
+.verifyInfo {
+    padding: 8px 0 4px 24px;
+    margin-left: -25px;
+}
+.verifyGood {
+    color: #468847;
+}
+.verifyGood .form-control {
+    border-color: #468847;
+    color: #468847;
+}
+.verifyGood .form-control:focus {
+    border-color: #356635;
+    -webkit-box-shadow: 0 0 6px #7aba7b;
+    -moz-box-shadow: 0 0 6px #7aba7b;
+    box-shadow: 0 0 6px #7aba7b;
+}
+.verifyGood .verifyInfo {
+    background: url(../img/valid.png) left 5px no-repeat;
+}
+.verifyShit {
+    color: #b94a48;
+}
+.verifyShit .form-control {
+    color: #b94a48;
+    border-color: #b94a48;
+}
+.verifyShit .form-control:focus {
+    border-color: #953b39;
+    -webkit-box-shadow: 0 0 6px #d59392;
+    -moz-box-shadow: 0 0 6px #d59392;
+    box-shadow: 0 0 6px #d59392;
+}
+.verifyShit .verifyInfo {
+    font-weight: bold;
+    color: red;
+    background: url(../img/error.png) left 5px no-repeat;
+}
+
+
+/* 总进度 */
+.eom-breadcrumb {
+    margin: 10px 0;
+    padding: 0;
+    list-style: none;
+}
+.eom-breadcrumb li {
+    float: left;
+    width: 14.285714285%;
+}
+.eom-breadcrumb li a {
+    width: 100%;
+    text-align: center;
+    display: inline-block;
+    padding: 8px 0;
+    text-decoration: none;
+    cursor: default;
+}
+
+.eom-breadcrumb .eom-complete + li a {
+    background-color: #428bca;
+    color: #fff;
+}
+.eom-breadcrumb li.eom-complete > a {
+    background-color: #5cb85c;
+    color: #fff;
+    cursor: pointer;
+}
+.eom-breadcrumb li.eom-complete > a:hover {
+    background-color: #428bca;
+    color: #fff;
+}
+.eom-breadcrumb > li + li:before {
+    content: '';
+    padding: 0;
+    display: none;
+}
+
+
+
+
+
 
 /* home.html 首页 */
-.mix-step1 {
-
+.mix-home-wrapper {
+    padding: 20px 50px;
 }
+
+
+
+
+
+
+
+/* home.html 首页 */
 .mix-step1-left, .mix-step1-right {
     padding: 15px;
 }
@@ -117,9 +243,6 @@ body {
     padding-bottom: 40px;
 }
 
-.eom-complete {
-    background-color: red;
-}
 
 /* deployment.html 第四步，安装和部署 */
 
@@ -155,12 +278,12 @@ body {
     text-align: left;
     padding: 10px 0;
 }
-.table-striped > tbody > tr:nth-child(odd) > td,
-.table-striped > tbody > tr:nth-child(odd) > th {
+.table-striped > tbody > tr:nth-child(even) > td,
+.table-striped > tbody > tr:nth-child(even) > th {
     background-color: #f6f6f6;
 }
-.mix-subtable .table-striped > tbody > tr:nth-child(odd) > td,
-.mix-subtable .table-striped > tbody > tr:nth-child(odd) > th {
+.mix-subtable .table-striped > tbody > tr:nth-child(even) > td,
+.mix-subtable .table-striped > tbody > tr:nth-child(even) > th {
     background-color: #fcfcfc;
 }
 .table-striped > tbody > tr:hover > td,

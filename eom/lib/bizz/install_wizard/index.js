@@ -5,19 +5,26 @@ var DBConfigTask = require("db_config.js");
 var DeployLibTask = require("deploy_lib.js");
 var DeployWarTask = require("deploy_war.js");
 var InitDBTask = require("init_database.js");
-var InstallTask = require("install.js");
+var InstallTask = require("install_process.js");
 var StartupTask = require("startup.js");
 var InstallWizard = function() {
 	this.title = "Install the Veris Billing System";
 	this.description = "A wizard to guid you to install Veris Billing System";
-	this.taskList.push(new HostConfigTask());
-	this.taskList.push(new DBConfigTask());
-	this.taskList.push(new MWConfigTask());
-	this.taskList.push(new InitDBTask());
-	this.taskList.push(new InstallTask());
-	this.taskList.push(new StartupTask());
+	this.host = new HostConfigTask();
+	this.db = new DBConfigTask();
+	this.mw = new MWConfigTask();
+	this.initDB = new InitDBTask();
+	this.install = new InstallTask();
+	this.startup = new StartupTask();
+	this.taskList.push(this.host);
+	this.taskList.push(this.db);
+	this.taskList.push(this.mw);
+	this.taskList.push(this.initDB);
+	this.taskList.push(this.install);
+	this.taskList.push(this.startup);
 };
 
 InstallWizard.prototype.go = function(req, res) {
 	req.session.insWiz = this;
 };
+module.exports = InstallWizard;

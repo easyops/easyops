@@ -7,9 +7,9 @@
                 返回查看和修改部署
             </a>
         </div>
-        <h3>您已成功完成设置，点击开始初始化</h3>
+        <h3>您已成功完成设置，点击开始初始化<button class="btn btn-success btn-lg">Start</button></h3>
         <p>
-            <button type="submit" class="btn btn-primary btn-lg">开始初始化</button>
+            
         </p>
         <div class="row">
             <div class="col-md-12">
@@ -131,6 +131,10 @@
                         </tr>
                     </tbody>
                   </table>
+                <p class="clearfix">
+                    <button class="btn btn-success btn-lg" ng-click="prevStep()">上一步</button>
+                    <button type="button" class="btn btn-primary btn-lg pull-right">完成</button>
+                </p>
             </div>
         </div>
     </div>

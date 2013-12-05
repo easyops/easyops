@@ -4,30 +4,40 @@
 
 <div class="mix-wrapper" style="bottom: 200px">
     <div class="container">
-        <ol class="breadcrumb" ng-controller="breadcrumbController">
-            <li>
-                <a ng-href="#/home" class="{{breadcrumb['/home']}}">
-                    1. 创建环境搭建模式
+        <ol class="breadcrumb eom-breadcrumb clearfix" ng-controller="breadcrumbController">
+            <li class="{{breadcrumb['/home']}}">
+                <a ng-href="#/home">
+                    1. 设置主机
                 </a>
             </li>
-            <li>
-                <a ng-href="#/createUser" class="{{breadcrumb['/createUser']}}">
-                    2. 创建用户和口令
+            <li class="{{breadcrumb['/setDatabase']}}">
+                <a ng-href="#/setDatabase">
+                    2. 设置数据库
                 </a>
             </li>
-            <li>
-                <a ng-href="#/associateHost" class="{{breadcrumb['/associateHost']}}">
-                    3. 关联主机信息
+            <li class="{{breadcrumb['/setWebServer']}}">
+                <a ng-href="#/setWebServer">
+                    3. 设置Web服务器
                 </a>
             </li>
-            <li>
-                <a ng-href="#/deployment" class="{{breadcrumb['/deployment']}}">
-                    4. 安装和部署
+            <li class="{{breadcrumb['/deployConfig']}}">
+                <a ng-href="#/deployConfig">
+                    4. 部署配置
                 </a>
             </li>
-            <li>
-                <a ng-href="#/initEnv" class="{{breadcrumb['/initEnv']}}">
-                    5. 执行初始化
+            <li class="{{breadcrumb['/deployServer']}}">
+                <a ng-href="#/deployServer">
+                    5. 部署服务
+                </a>
+            </li>
+            <li class="{{breadcrumb['/initScript']}}">
+                <a ng-href="#/initScript">
+                    6. 初始化脚本
+                </a>
+            </li>
+            <li class="{{breadcrumb['/initEnv']}}">
+                <a ng-href="#/initEnv">
+                    7. 执行初始化
                 </a>
             </li>
         </ol>

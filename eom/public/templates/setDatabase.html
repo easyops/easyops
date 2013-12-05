@@ -1,17 +1,18 @@
-<div class="row mix-home">
+<div class="row mix-setdatabase">
     <div class="com-md-12">
         <div class="mix-home-wrapper">
-            <h3>主机列表</h3>
+            <h3>Web服务器列表</h3>
             <p>说明文字...</p>
             <table class="table table-bordered table-hover table-striped">
                <colgroup>
-                   <col width="220">
-                   <col width="220">
+                   <col width="100">
+                   <col width="200">
+                   <col width="200">
                    <col width="200">
                    <col width="50">
                </colgroup>
                <caption>
-                   <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addHost" ng-click="resetHost()">添加</button>
+                   <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDatabase" ng-click="resetDatabase()">添加</button>
                    <button class="btn btn-primary btn-sm pull-right" data-toggle="modal" data-target="#setUnifyUser">
                         <span class="glyphicon glyphicon-cog"></span>
                         {{canUseUnifyUser ? '修改统一口令' : '设置统一口令'}}
@@ -19,25 +20,28 @@
                </caption>
                <thead>
                    <tr>
-                       <th>IP地址</th>
-                       <th>域</th>
-                       <th>用户</th>
-                       <th>操作</th>
+                        <th>ID</th>
+                        <th>IP地址</th>
+                        <th>端口</th>
+                        <th>用户</th>
+                        <th>操作</th>
                    </tr>
                </thead>
                <tbody>
-                   <tr ng-repeat="(i, h) in hosts">
+                   <tr ng-repeat="(i, h) in databases">
+                       <td>{{h.id}}</td>
                        <td>{{h.ip}}</td>
-                       <td>{{h.field}}</td>
+                       <td>{{h.port}}</td>
                        <td>{{h.user}}</td>
                        <td>
-                           <i class="glyphicon glyphicon-edit" ng-click="editHost('#editHost', i)"></i>
-                           <i class="glyphicon glyphicon-trash" ng-click="deleteHost(i)"></i>
+                           <i class="glyphicon glyphicon-edit" ng-click="editDatabase('#editDatabase', i)"></i>
+                           <i class="glyphicon glyphicon-trash" ng-click="deleteDatabase(i)"></i>
                        </td>
                    </tr>
                </tbody>
              </table>
              <p class="clearfix">
+                 <button class="btn btn-success btn-lg" ng-click="prevStep()">上一步</button>
                  <button class="btn btn-success btn-lg pull-right" ng-click="nextStep()">下一步</button>
              </p>
         </div>
@@ -45,27 +49,46 @@
 </div>
 
 
-<!-- 添加主机 -->
-<div id="addHost" class="modal fade" role="dialog" tabindex="-1">
+<!-- 添加数据库 -->
+<div id="addDatabase" class="modal fade" role="dialog" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">添加主机</h4>
+                <h4 class="modal-title">添加数据库</h4>
             </div>
             
             <div class="modal-body">
-                <form name="addHostForm" id="addHostForm" class="form-horizontal" role="form">
+                <form name="addDatabaseForm" id="addDatabaseForm" class="form-horizontal" role="form">
                     <div class="form-group">
-                        <label for="addHostIp" class="col-md-2 control-label">IP 地址:</label>
+                        <label for="addDatabaseId" class="col-md-2 control-label">ID:</label>
                         <div class="col-md-5">
-                            <input type="text" id="addHostIp" name="addHostIp" class="form-control"
+                            <input type="text" id="addDatabaseId" name="addDatabaseId" class="form-control"
+                                    placeholder="Enter ID"
+                                    ng-model="addId.val"
+                                    required
+                                    ng-pattern ="addId.re"
+                                    ng-blur="addId.blur(addDatabaseForm.addDatabaseId.$valid, addDatabaseForm.addDatabaseId.$error)"
+                                    ng-keyup="addId.keyup(addDatabaseForm.addDatabaseId.$valid, addDatabaseForm.addDatabaseId.$error)"
+                                    >
+                        </div>
+                        <div class="col-md-5">
+                            <div class="verifyInfo" ng-show="addId.blank">请输入ID！</div>
+                            <div class="verifyInfo" ng-show="addId.mismatch">请输入正确的ID！</div>
+                            <div class="verifyInfo" ng-show="addId.validity">&nbsp;</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addDatabaseIp" class="col-md-2 control-label">IP地址 :</label>
+                        <div class="col-md-5">
+                            <input type="text" id="addDatabaseIp" name="addDatabaseIp" class="form-control"
                                     placeholder="Enter like: 127.0.0.1"
                                     ng-model="addIp.val"
                                     required
                                     ng-pattern ="addIp.re"
-                                    ng-blur="addIp.blur(addHostForm.addHostIp.$valid, addHostForm.addHostIp.$error)"
-                                    ng-keyup="addIp.keyup(addHostForm.addHostIp.$valid, addHostForm.addHostIp.$error)"
+                                    ng-blur="addIp.blur(addDatabaseForm.addDatabaseIp.$valid, addDatabaseForm.addDatabaseIp.$error)"
+                                    ng-keyup="addIp.keyup(addDatabaseForm.addDatabaseIp.$valid, addDatabaseForm.addDatabaseIp.$error)"
                                     >
                         </div>
                         <div class="col-md-5">
@@ -76,21 +99,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="addHostField" class="col-md-2 control-label">域:</label>
+                        <label for="addDatabasePort" class="col-md-2 control-label">端口:</label>
                         <div class="col-md-5">
-                            <select name="addHostField" id="addHostField" class="form-control"
-                                    ng-model="addField.val"
-                                    ng-options="v.value as v.label for v in fieldList"
+                            <input type="text" id="addDatabasePort" name="addDatabasePort" class="form-control"
+                                    placeholder="Enter Port"
+                                    ng-model="addPort.val"
                                     required
-                                    ng-blur="addField.blur(addHostForm.addHostField.$valid)"
-                                    ng-change="addField.change(addHostForm.addHostField.$valid)"
+                                    ng-pattern ="addPort.re"
+                                    ng-blur="addPort.blur(addDatabaseForm.addDatabasePort.$valid, addDatabaseForm.addDatabasePort.$error)"
+                                    ng-keyup="addPort.keyup(addDatabaseForm.addDatabasePort.$valid, addDatabaseForm.addDatabasePort.$error)"
                                     >
-                                <option value="" disabled> -- Choose Field -- </option>
-                            </select>
                         </div>
                         <div class="col-md-5">
-                            <div class="verifyInfo" ng-show="addField.blank">请选择域！</div>
-                            <div class="verifyInfo" ng-show="addField.validity">&nbsp;</div>
+                            <div class="verifyInfo" ng-show="addPort.blank">请输入IP！</div>
+                            <div class="verifyInfo" ng-show="addPort.mismatch">请输入正确的IP！</div>
+                            <div class="verifyInfo" ng-show="addPort.validity">&nbsp;</div>
                         </div>
                     </div>
 
@@ -104,15 +127,15 @@
 
                     <div ng-show="!useUnifyUser">
                         <div class="form-group">
-                            <label for="addHostUser" class="col-md-2 control-label">用户名:</label>
+                            <label for="addDatabaseUser" class="col-md-2 control-label">用户名:</label>
                             <div class="col-md-5">
-                                <input type="text" name="addHostUser" id="addHostUser" class="form-control"
+                                <input type="text" name="addDatabaseUser" id="addDatabaseUser" class="form-control"
                                         placeholder="Type the username"
                                         ng-model="addUser.val"
                                         required
                                         ng-pattern="addUser.re"
-                                        ng-blur="addUser.blur(addHostForm.addHostUser.$valid, addHostForm.addHostUser.$error)"
-                                        ng-keyup="addUser.keyup(addHostForm.addHostUser.$valid, addHostForm.addHostUser.$error)"
+                                        ng-blur="addUser.blur(addDatabaseForm.addDatabaseUser.$valid, addDatabaseForm.addDatabaseUser.$error)"
+                                        ng-keyup="addUser.keyup(addDatabaseForm.addDatabaseUser.$valid, addDatabaseForm.addDatabaseUser.$error)"
                                         >
                             </div>
                             <div class="col-md-5">
@@ -123,15 +146,15 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="addHostCmd" class="col-md-2 control-label">口令:</label>
+                            <label for="addDatabaseCmd" class="col-md-2 control-label">口令:</label>
                             <div class="col-md-5">
-                                <input type="{{addCmd.showChar ? 'text' : 'password'}}" name="addHostCmd" id="addHostCmd" class="form-control"
+                                <input type="{{addCmd.showChar ? 'text' : 'password'}}" name="addDatabaseCmd" id="addDatabaseCmd" class="form-control"
                                         placeholder="Type the password"
                                         ng-model="addCmd.val"
                                         required
                                         ng-pattern="addCmd.re"
-                                        ng-blur="addCmd.blur(addHostForm.addHostCmd.$valid, addHostForm.addHostCmd.$error)"
-                                        ng-keyup="addCmd.keyup(addHostForm.addHostCmd.$valid, addHostForm.addHostCmd.$error)"
+                                        ng-blur="addCmd.blur(addDatabaseForm.addDatabaseCmd.$valid, addDatabaseForm.addDatabaseCmd.$error)"
+                                        ng-keyup="addCmd.keyup(addDatabaseForm.addDatabaseCmd.$valid, addDatabaseForm.addDatabaseCmd.$error)"
                                         >
                             </div>
                             <div class="col-md-5">
@@ -154,33 +177,52 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" ng-click="submitHost('#addHost')">保存</button>
+                <button type="button" class="btn btn-primary" ng-click="submitDatabase('#addDatabase')">保存</button>
             </div>
         </div>
     </div> 
 </div>
 
-<!-- 修改主机信息 -->
-<div id="editHost" class="modal fade" role="dialog" tabindex="-1">
+<!-- 修改数据库信息 -->
+<div id="editDatabase" class="modal fade" role="dialog" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">修改主机信息</h4>
+                <h4 class="modal-title">修改数据库信息</h4>
             </div>
             
             <div class="modal-body">
-                <form name="editHostForm" id="editHostForm" class="form-horizontal" role="form">
+                <form name="editDatabaseForm" id="editDatabaseForm" class="form-horizontal" role="form">
                     <div class="form-group">
-                        <label for="editHostIp" class="col-md-2 control-label">IP 地址:</label>
+                        <label for="editDatabaseId" class="col-md-2 control-label">ID:</label>
                         <div class="col-md-5">
-                            <input type="text" id="editHostIp" name="editHostIp" class="form-control"
+                            <input type="text" id="editDatabaseId" name="editDatabaseId" class="form-control"
+                                    placeholder="Enter ID"
+                                    ng-model="editId.val"
+                                    required
+                                    ng-pattern ="editId.re"
+                                    ng-blur="editId.blur(editDatabaseForm.editDatabaseId.$valid, editDatabaseForm.editDatabaseId.$error)"
+                                    ng-keyup="editId.keyup(editDatabaseForm.editDatabaseId.$valid, editDatabaseForm.editDatabaseId.$error)"
+                                    >
+                        </div>
+                        <div class="col-md-5">
+                            <div class="verifyInfo" ng-show="editId.blank">请输入ID！</div>
+                            <div class="verifyInfo" ng-show="editId.mismatch">请输入正确的ID！</div>
+                            <div class="verifyInfo" ng-show="editId.validity">&nbsp;</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDatabaseIp" class="col-md-2 control-label">IP 地址:</label>
+                        <div class="col-md-5">
+                            <input type="text" id="editDatabaseIp" name="editDatabaseIp" class="form-control"
                                     placeholder="Enter like: 127.0.0.1"
                                     ng-model="editIp.val"
                                     required
                                     ng-pattern ="editIp.re"
-                                    ng-blur="editIp.blur(editHostForm.editHostIp.$valid, editHostForm.editHostIp.$error)"
-                                    ng-keyup="editIp.keyup(editHostForm.editHostIp.$valid, editHostForm.editHostIp.$error)"
+                                    ng-blur="editIp.blur(editDatabaseForm.editDatabaseIp.$valid, editDatabaseForm.editDatabaseIp.$error)"
+                                    ng-keyup="editIp.keyup(editDatabaseForm.editDatabaseIp.$valid, editDatabaseForm.editDatabaseIp.$error)"
                                     >
                         </div>
                         <div class="col-md-5">
@@ -191,21 +233,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="editHostField" class="col-md-2 control-label">域:</label>
+                        <label for="editDatabasePort" class="col-md-2 control-label">端口:</label>
                         <div class="col-md-5">
-                            <select name="editHostField" id="editHostField" class="form-control"
-                                    ng-model="editField.val"
-                                    ng-options="v.value as v.label for v in fieldList"
+                            <input type="text" id="editDatabasePort" name="editDatabasePort" class="form-control"
+                                    placeholder="Enter like: 127.0.0.1"
+                                    ng-model="editPort.val"
                                     required
-                                    ng-blur="editField.blur(editHostForm.editHostField.$valid)"
-                                    ng-change="editField.change(editHostForm.editHostField.$valid)"
+                                    ng-pattern ="editPort.re"
+                                    ng-blur="editPort.blur(editDatabaseForm.editDatabasePort.$valid, editDatabaseForm.editDatabasePort.$error)"
+                                    ng-keyup="editPort.keyup(editDatabaseForm.editDatabasePort.$valid, editDatabaseForm.editDatabasePort.$error)"
                                     >
-                                <option value="" disabled> -- Choose Field -- </option>
-                            </select>
                         </div>
                         <div class="col-md-5">
-                            <div class="verifyInfo" ng-show="editField.blank">请选择域！</div>
-                            <div class="verifyInfo" ng-show="editField.validity">&nbsp;</div>
+                            <div class="verifyInfo" ng-show="editPort.blank">请输入IP！</div>
+                            <div class="verifyInfo" ng-show="editPort.mismatch">请输入正确的IP！</div>
+                            <div class="verifyInfo" ng-show="editPort.validity">&nbsp;</div>
                         </div>
                     </div>
 
@@ -219,15 +261,15 @@
 
                     <div ng-show="!useUnifyUser">
                         <div class="form-group">
-                            <label for="editHostUser" class="col-md-2 control-label">用户名:</label>
+                            <label for="editDatabaseUser" class="col-md-2 control-label">用户名:</label>
                             <div class="col-md-5">
-                                <input type="text" name="editHostUser" id="editHostUser" class="form-control"
+                                <input type="text" name="editDatabaseUser" id="editDatabaseUser" class="form-control"
                                         placeholder="Type the username"
                                         ng-model="editUser.val"
                                         required
                                         ng-pattern="editUser.re"
-                                        ng-blur="editUser.blur(editHostForm.editHostUser.$valid, editHostForm.editHostUser.$error)"
-                                        ng-keyup="editUser.keyup(editHostForm.editHostUser.$valid, editHostForm.editHostUser.$error)"
+                                        ng-blur="editUser.blur(editDatabaseForm.editDatabaseUser.$valid, editDatabaseForm.editDatabaseUser.$error)"
+                                        ng-keyup="editUser.keyup(editDatabaseForm.editDatabaseUser.$valid, editDatabaseForm.editDatabaseUser.$error)"
                                         >
                             </div>
                             <div class="col-md-5">
@@ -238,15 +280,15 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="editHostCmd" class="col-md-2 control-label">口令:</label>
+                            <label for="editDatabaseCmd" class="col-md-2 control-label">口令:</label>
                             <div class="col-md-5">
-                                <input type="{{editCmd.showChar ? 'text' : 'password'}}" name="editHostCmd" id="editHostCmd" class="form-control"
+                                <input type="{{editCmd.showChar ? 'text' : 'password'}}" name="editDatabaseCmd" id="editDatabaseCmd" class="form-control"
                                         placeholder="Type the password"
                                         ng-model="editCmd.val"
                                         required
                                         ng-pattern="editCmd.re"
-                                        ng-blur="editCmd.blur(editHostForm.editHostCmd.$valid, editHostForm.editHostCmd.$error)"
-                                        ng-keyup="editCmd.keyup(editHostForm.editHostCmd.$valid, editHostForm.editHostCmd.$error)"
+                                        ng-blur="editCmd.blur(editDatabaseForm.editDatabaseCmd.$valid, editDatabaseForm.editDatabaseCmd.$error)"
+                                        ng-keyup="editCmd.keyup(editDatabaseForm.editDatabaseCmd.$valid, editDatabaseForm.editDatabaseCmd.$error)"
                                         >
                             </div>
                             <div class="col-md-5">
@@ -269,7 +311,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary"ng-click="submitEdit('#editHost')">保存</button>
+                <button type="button" class="btn btn-primary"ng-click="submitEdit('#editDatabase')">保存</button>
             </div>
         </div>
     </div> 

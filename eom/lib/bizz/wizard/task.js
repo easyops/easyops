@@ -83,13 +83,43 @@ Task.prototype.check = function(hosts, callBack) {
 			self.filterConfig(hosts, configs);
 			self.subTask = configs;
 			self.checkConfigs(configs, function(result) {
-				console.log("result:"+result);
+				console.log("result:" + result);
 				self.result = result;
 				callBack(null, self);
 			}, self.checkUnit);
 		}
 	});
 };
+
+Task.prototype.addConfig = function(config, callBack) {
+	var task = this;
+	var client = global.zkCli;
+	var path = task.configPath + "/" + config.id;
+	var bf = new Buffer(JSON.stringify(config));
+	client.create(path, bf, function(error, path) {
+		callBack(error);
+	});
+};
+
+Task.prototype.updateConfig = function(config, callBack) {
+	var task = this;
+	var client = global.zkCli;
+	var path = task.configPath + "/" + config.id;
+	var bf = new Buffer(JSON.stringify(config));
+	client.setData(path, bf, function(error, stat) {
+		callBack(error, stat);
+	});
+};
+
+Task.prototype.deleteConfig = function(config, callBack) {
+	var task = this;
+	var client = global.zkCli;
+	var path = task.configPath + "/" + config.id;
+	client.remove(path, function(error) {
+		callBack(error);
+	});
+};
+
 Task.prototype.saveConfig = function(configs, callBack) {
 	var task = this;
 	var client = global.zkCli;
