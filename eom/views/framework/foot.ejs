@@ -1,21 +1,29 @@
 
 
-        <!-- 日志显示 -->
+        <!-- 辅助日志面板缩放大小 -->
+        <div class="log-resize-visual">
+            <div class="log-resize-modal"></div>
+            <div class="log-resize-handler">
+                <div class="log-resize-line"></div>
+            </div>
+        </div>
+
+        <!-- 日志信息 -->
         <div class="panel panel-default mix-log" style="height: 200px;">
             <div class="panel-heading">
                 日志信息
                 <span class="mix-btn-group pull-right">
-                    <span class="glyphicon glyphicon-fullscreen"></span>
+                    <span class="glyphicon glyphicon-resize-full"></span>
                     <span class="glyphicon glyphicon-minus"></span>
                 </span>
+                <button class="pull-right clear-log" ng-click="clearLog()">清除日志</button>
             </div>
             <div class="panel-body">
-               <div>
-                   <p>dsfsdfsdf</p>
-                   <p>dsfsdfsdf</p>
-                   <p>dsfsdfsdf</p>
-                   <p>dsfsdfsdf</p>
-                   <p>dsfsdfsdf</p>
+               <div class="log-info">
+                 <p ng-repeat="info in infos" class="{{info.type}}">
+                  <b>[{{info.type}}]</b>
+                  {{info.value}}
+                </p>
                </div>
             </div>
         </div>
