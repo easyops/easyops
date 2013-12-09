@@ -30,19 +30,20 @@
                    </tr>
                </thead>
                <tbody>
-                   <tr ng-repeat="(i, h) in servers">
+                   <tr ng-repeat="(i, h) in servers | range: [page, serverPag.pageSize]">
                        <td>{{h.id}}</td>
                        <td>{{h.ip}}</td>
                        <td>{{h.port}}</td>
                        <td>{{h.field}}</td>
                        <td>{{h.user}}</td>
                        <td>
-                           <i class="glyphicon glyphicon-edit" ng-click="editServer('#editServer', i)"></i>
-                           <i class="glyphicon glyphicon-trash" ng-click="deleteServer(i)"></i>
+                           <i class="glyphicon glyphicon-edit" ng-click="editServer('#editServer', (page-1) * serverPag.pageSize + i)"></i>
+                           <i class="glyphicon glyphicon-trash" ng-click="deleteServer((page-1) * serverPag.pageSize + i)"></i>
                        </td>
                    </tr>
                </tbody>
              </table>
+             <div class="clearfix" pagingbar="serverPag"></div>
              <p class="clearfix">
                  <button class="btn btn-success btn-lg" ng-click="prevStep()">上一步</button>
                  <button class="btn btn-success btn-lg pull-right" ng-click="nextStep()">下一步</button>

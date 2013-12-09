@@ -26,18 +26,20 @@
                    </tr>
                </thead>
                <tbody>
-                   <tr ng-repeat="(i, h) in hosts">
-                       <td>{{h.ip}}</td>
-                       <td>{{h.field}}</td>
+                   <tr ng-repeat="(i, h) in hosts | range: [page, hostPag.pageSize]">
+                       <td>{{h.address}}</td>
+                       <td>{{h.strdomain}}</td>
                        <td>{{h.user}}</td>
                        <td>
-                           <i class="glyphicon glyphicon-edit" ng-click="editHost('#editHost', i)"></i>
-                           <i class="glyphicon glyphicon-trash" ng-click="deleteHost(i)"></i>
+                       <i class="glyphicon glyphicon-edit" ng-click="checkHost((page-1) * hostPag.pageSize + i)"></i>
+                           <i class="glyphicon glyphicon-edit" ng-click="editHost('#editHost', (page-1) * hostPag.pageSize + i)"></i>
+                           <i class="glyphicon glyphicon-trash" ng-click="deleteHost((page-1) * hostPag.pageSize + i)"></i>
                        </td>
-                   </tr>
-               </tbody>
-             </table>
-             <p class="clearfix">
+                    </tr>
+                </tbody>
+            </table>
+            <div class="clearfix" pagingbar="hostPag"></div>            
+            <p class="clearfix">
                  <button class="btn btn-success btn-lg pull-right" ng-click="nextStep()">下一步</button>
              </p>
         </div>

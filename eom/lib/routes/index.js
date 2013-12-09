@@ -52,3 +52,4 @@ exports.doLogin = function(req, res) {
 exports.doLogout = function(req, res) {
 
 };
+exports.install = require("./install");

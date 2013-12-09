@@ -2,6 +2,7 @@ var Task = require("../wizard").Task;
 var Cmd = require("../../res/cmd");
 var logger = require("../../common/util").logger;
 var async = require("async");
+var SysConfig = require("./sys_config");
 var HostConfigTask = function(wizard) {
 	this.title = "configuration for host";
 	this.description = "";
@@ -10,21 +11,29 @@ var HostConfigTask = function(wizard) {
 HostConfigTask.prototype = new Task();
 HostConfigTask.prototype.configPath = "/config/system/deployment/hosts";
 
+function getRealAuth(host) {
+	if (host.globalUser === "true") {
+		if (global.sys_config) {
+			host.user = global.sys_config.user;
+			host.password = global.sys_config.password;
+		}
+	}
+	return host;
+}
+
 HostConfigTask.prototype.checkUnit = function(host, countDown) {
 	var cmd = new Cmd("uptime", "remote");
-	cmd.host = host;
+	cmd.host = getRealAuth(host);
 	cmd.callBack = function(error, stdout, stderr) {
 		if (error) {
 			host.result = false;
 			host.message = "connect host fail, host :" + host.address;
-			logger.info("check for connection to host " + cmd.host.id
-					+ " error!");
+			logger.info("check for connection to host " + cmd.host.id + " error!");
 			countDown.down();
 		} else {
 			host.result = true;
 			host.message = "success to connect host :" + host.address;
-			logger.info("check for connection to host " + cmd.host.id
-					+ " success!");
+			logger.info("check for connection to host " + cmd.host.id + " success!");
 			var fun_init = function(callBack) {
 				var context = {};
 				context.sh_file = "check_env.sh";
@@ -43,7 +52,7 @@ HostConfigTask.prototype.checkUnit = function(host, countDown) {
 				var cmd = new Cmd("cd " + cnt.remoteShellPath, "remote");
 				cmd.host = host;
 				cmd.send(function(error, stdout, stderr) {
-					console.log("cmd.exec_code:"+cmd.exec_code);
+					console.log("cmd.exec_code:" + cmd.exec_code);
 					if (error) {
 						cnt.error = error;
 						callBack(null, cnt);
@@ -127,14 +136,13 @@ HostConfigTask.prototype.checkUnit = function(host, countDown) {
 				});
 			};
 
-			async.waterfall([ fun_init, fun_check_folder, fun_create_folder,
-					fun_deliver_script, fun_exe_script ], function(error, cnt) {
+			async.waterfall([ fun_init, fun_check_folder, fun_create_folder, fun_deliver_script,
+					fun_exe_script ], function(error, cnt) {
 				logger.info("check step : " + cnt.step);
 				if (error) {
 					logger.error(error);
 					host.result = false;
-					host.message = "check host " + host.address + " error : "
-							+ error;
+					host.message = "check host " + host.address + " error : " + error;
 				} else {
 					host.result = true;
 					host.message = "check host ok host is :" + host.address;

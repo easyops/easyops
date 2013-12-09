@@ -43,7 +43,13 @@ Task.prototype.queryConfig = function(callBack) {
 };
 
 Task.prototype.checkConfigs = function(configs, callBack, checkFunc) {
-	var cd = new CountDown(configs.length, function() {
+	var count = 0;
+	for (var i = 0; i < configs.length; i++) {
+		if (configs[i].result === 0) {
+			count++;
+		}
+	}
+	var cd = new CountDown(count, function() {
 		var result = true;
 		for (var i = 0; i < configs.length; i++) {
 			if (configs[i].result === false) {
@@ -54,15 +60,19 @@ Task.prototype.checkConfigs = function(configs, callBack, checkFunc) {
 	});
 	console.log("got %s configs from zk", configs.length);
 	configs.forEach(function(e, i, a) {
-		checkFunc(e, cd);
+		if (e.result === 0) {
+			checkFunc(e, cd);
+		}
 	});
 };
-Task.prototype.filterConfig = function(hosts, configs) {
-	if (hosts) {
+Task.prototype.filterConfig = function(selected, configs) {
+	if (selected) {
 		for (var i = 0; i < configs.length; i++) {
-			for (var k = 0; k < hosts.length; k++) {
-				if (hosts[k].id == configs[i].id) {
+			for (var k = 0; k < selected.length; k++) {
+				if (selected[k].id == configs[i].id) {
 					configs[i].result = 0;
+				} else {
+					configs[i].result = 1;
 				}
 			}
 		}
@@ -73,14 +83,14 @@ Task.prototype.filterConfig = function(hosts, configs) {
 	}
 };
 
-Task.prototype.check = function(hosts, callBack) {
+Task.prototype.check = function(selected, callBack) {
 	var self = this;
 	this.queryConfig(function(error, configs) {
 		if (error) {
 			callBack(error, self);
 			return;
 		} else {
-			self.filterConfig(hosts, configs);
+			self.filterConfig(selected, configs);
 			self.subTask = configs;
 			self.checkConfigs(configs, function(result) {
 				console.log("result:" + result);
@@ -111,10 +121,10 @@ Task.prototype.updateConfig = function(config, callBack) {
 	});
 };
 
-Task.prototype.deleteConfig = function(config, callBack) {
+Task.prototype.deleteConfig = function(id, callBack) {
 	var task = this;
 	var client = global.zkCli;
-	var path = task.configPath + "/" + config.id;
+	var path = task.configPath + "/" + id;
 	client.remove(path, function(error) {
 		callBack(error);
 	});
@@ -134,14 +144,13 @@ Task.prototype.saveConfig = function(configs, callBack) {
 			tx.remove(node.children[i].path);
 		}
 		for (i = 0; i < configs.length; i++) {
-			tx.create(task.configPath + "/" + configs[i].id, new Buffer(JSON
-					.stringify(configs[i])));
+			tx
+					.create(task.configPath + "/" + configs[i].id, new Buffer(JSON
+							.stringify(configs[i])));
 		}
 		tx.commit(function(error, results) {
 			if (error) {
-				console.log(
-						'Failed to execute the transaction: %s, results: %j',
-						error, results);
+				console.log('Failed to execute the transaction: %s, results: %j', error, results);
 			}
 			callBack(error);
 		});

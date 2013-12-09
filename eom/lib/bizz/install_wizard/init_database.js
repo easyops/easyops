@@ -1,6 +1,6 @@
 var Task = require("../wizard").Task;
 
-var InitDBTask = function(this.wizard){
+var InitDBTask = function(wizard){
 	this.title = "configuration for host";
 	this.description = "";	
 	this.wizard = wizard;

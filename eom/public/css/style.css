@@ -104,7 +104,9 @@ caption {
     color: red;
     background: url(../img/error.png) left 5px no-repeat;
 }
-
+.pagination {
+    margin: -8px 0 20px;
+}
 
 /* 总进度 */
 .eom-breadcrumb {
@@ -185,6 +187,7 @@ caption {
     margin-bottom: 0;
     border: 0;
     border-radius: 0;
+    z-index: 2000;
 }
 .mix-log .panel-heading {
     border-radius: 0;
@@ -202,12 +205,60 @@ caption {
     left: 0;
     right: 0;
 }
+.log-info .error {
+    color: red;
+}
+.log-info .warn {
+    color: #f60;
+}
+.clear-log {
+    background: none;
+    border: 0;
+    outline: none;
+}
+.clear-log:hover {
+    text-decoration: underline;
+}
 .mix-install-tip .alert {
     margin-top: 10px;
 }
 .mix-install-tip .alert a {
     font-weight: normal;
 }
+.log-resize-modal {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 3000px;
+    height: 2000px;
+    z-index: 2001;
+    display: none;
+}
+.log-resize-handler {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 12px;
+    bottom: 194px;
+    cursor: ns-resize;
+    z-index: 2002;
+}
+.log-resize-line {
+    height: 6px;
+    display: none;
+    border-bottom: 1px dashed #428bca;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* createuser.html 第二步，创建您的用户和口令 */
 .mix-createrule {
     border: 1px solid #ccc;

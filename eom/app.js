@@ -42,6 +42,16 @@ app.post('/doLogin', root.doLogin);
 app.get("/console", root.console);
 app.post("/sendMessage", root.sendMessage);
 
+app.get("/install/configs", root.install.configs);
+app.post("/install/addConfig", root.install.addConfig);
+app.post("/install/deleteConfig", root.install.deleteConfig);
+app.post("/install/checkConfig", root.install.checkConfig);
+
+app.get("/install/sysConfig", root.install.sysConfig);
+app.post("/install/saveSysConfig", root.install.saveSysConfig);
+app.get("/install/allDomains", root.install.getAllDomain);
+
+
 var server = http.createServer(app).listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
 });
@@ -58,5 +68,13 @@ var client = zookeeper.createClient('localhost:2181');
 client.once('connected', function() {
 	console.log('Connected to the zookeeper server');
 	global.zkCli = client;
+	var SysConfig = require("./lib/bizz/install_wizard/sys_config");
+	SysConfig.getSysConfig(function(error, config) {
+		if (error) {
+			console.error("get System Config Error:" + error);
+		} else {
+			global.sys_config = config;
+		}
+	});
 });
 client.connect();

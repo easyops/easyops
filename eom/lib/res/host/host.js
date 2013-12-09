@@ -8,7 +8,8 @@ var Domain = function(){
 
 var Host  = function(){
 	this.id = "";
-	this.address = "";	
+	this.address = "";
+	this.globalUser = true;
 	this.user="p0bm2";
 	this.port=22;
 	this.password="p0bm2";

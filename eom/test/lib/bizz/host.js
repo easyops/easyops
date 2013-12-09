@@ -64,8 +64,7 @@ describe("test host task function", function() {
 			if (error) {
 				console.error(error);
 			} else {
-				chk.result.should.equal(false);
-				chk.subTask.should.have.length(3);
+				chk.result.should.equal(false);			
 				for (var i = 0; i < chk.subTask.length; i++) {
 					if (chk.subTask[i].id == "10.10.12.83") {
 						chk.subTask[i].result.should.equal(true);

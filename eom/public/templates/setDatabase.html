@@ -28,18 +28,19 @@
                    </tr>
                </thead>
                <tbody>
-                   <tr ng-repeat="(i, h) in databases">
+                   <tr ng-repeat="(i, h) in databases | range: [page, databasePag.pageSize]">
                        <td>{{h.id}}</td>
                        <td>{{h.ip}}</td>
                        <td>{{h.port}}</td>
                        <td>{{h.user}}</td>
                        <td>
-                           <i class="glyphicon glyphicon-edit" ng-click="editDatabase('#editDatabase', i)"></i>
-                           <i class="glyphicon glyphicon-trash" ng-click="deleteDatabase(i)"></i>
+                           <i class="glyphicon glyphicon-edit" ng-click="editDatabase('#editDatabase', (page-1) * databasePag.pageSize + i)"></i>
+                           <i class="glyphicon glyphicon-trash" ng-click="deleteDatabase((page-1) * databasePag.pageSize + i)"></i>
                        </td>
                    </tr>
                </tbody>
              </table>
+             <div class="clearfix" pagingbar="databasePag"></div>
              <p class="clearfix">
                  <button class="btn btn-success btn-lg" ng-click="prevStep()">上一步</button>
                  <button class="btn btn-success btn-lg pull-right" ng-click="nextStep()">下一步</button>
