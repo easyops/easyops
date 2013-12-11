@@ -12,14 +12,15 @@
  *            error [该表单的$error属性]
  * @return {[type]} [description]
  */
+
 function verifyTextInputBlur(target, valid, error) {
 	if (!target.verify) {
-		if (!error.required) {// 内容不为空
+		if (!error.required) { // 内容不为空
 			target.verify = true;
 			if (valid) {
 				target.validity = true;
 				target.parent.addClass('verifyGood');
-			} else if (error.pattern) {// 如果验证不通过
+			} else if (error.pattern) { // 如果验证不通过
 				target.mismatch = true;
 				target.parent.addClass('verifyShit');
 			}
@@ -39,6 +40,7 @@ function verifyTextInputBlur(target, valid, error) {
  *            error [该表单的$error属性]
  * @return {[type]} [description]
  */
+
 function verifyTextInputKeyup(target, valid, error) {
 	if (target.verify) {
 		if (valid) {
@@ -74,6 +76,7 @@ function verifyTextInputKeyup(target, valid, error) {
  *            cmd [该确认密码表单对应的密码表单对象]
  * @return {[type]} [description]
  */
+
 function verifyCmdEqually(target, error, cmd) {
 	if (cmd.val) {
 		if (error.required) {
@@ -107,6 +110,7 @@ function verifyCmdEqually(target, error, cmd) {
  *            valid [该表单的$valid属性]
  * @return {[type]} [description]
  */
+
 function verifySelect(target, valid) {
 	if (valid) {
 		target.validity = true;
@@ -128,6 +132,7 @@ function verifySelect(target, valid) {
  *            data [description]
  * @return {[type]} [description]
  */
+
 function createDataObj(data) {
 	var obj = {
 		id : data.id,
@@ -135,10 +140,10 @@ function createDataObj(data) {
 		parent : data.parent || $('#' + data.id).closest('.form-group'),
 		re : data.re || '',
 		showChar : data.showChar || false,
-		blank : false,// 表单是否为空，空 == true
-		mismatch : false,// 是否和正则表达式匹配，不匹配 == true
-		validity : false,// 表单是否已通过验证，通过 == true
-		verify : false,// 是否开启验证，开启 == true
+		blank : false, // 表单是否为空，空 == true
+		mismatch : false, // 是否和正则表达式匹配，不匹配 == true
+		validity : false, // 表单是否已通过验证，通过 == true
+		verify : false, // 是否开启验证，开启 == true
 
 		blur : data.blur || '',
 		keyup : data.keyup || '',
@@ -402,13 +407,13 @@ app
 										var strdomain = "";
 										for (var j = 0; j < hosts[i].domains.length; j++) {
 											if (typeof hosts[i].domains[j] === "object") {
-												if (j == 0) {
+												if (j === 0) {
 													strdomain += hosts[i].domains[j].title;
 												} else {
 													strdomain += ";" + hosts[i].domains[j].title;
 												}
 											} else {
-												if (j == 0) {
+												if (j === 0) {
 													strdomain += hosts[i].domains[j];
 												} else {
 													strdomain += ";" + hosts[i].domains[j];
@@ -424,31 +429,48 @@ app
 
 							// 接收日志信息，
 							$rootScope.infos = [];
-							var $logInfo;
-							setInterval(function() {
-								$http.get('/data/log.json').success(
-										function(data) {
-											if (data.result === 'success') {
-												$rootScope.infos = $rootScope.infos
-														.concat(data.data);
-												if ($logInfo) {
-													setTimeout(function() {
-														$logInfo.closest('.panel-body').scrollTop(
-																($logInfo.outerHeight() + 2000));
-													}, 50);
-												} else {
-													$logInfo = $('.log-info');
-												}
-											}
-										});
-							}, 500);
+							var $logInfo = $('.log-info');
+
+							var socket = io.connect('http://' + location.host);
+							socket.on('hello', function(data) {								
+								var html = ''
+								html += 'console has been connected!';
+								$logInfo.append(html).closest('.panel-body').scrollTop(
+										$logInfo.outerHeight() + 2000);
+
+							});
+							socket.on('info', function(data) {
+								var html = '<p class="nomal"><b>[info]</b>' + data.message + '</p>';
+								$logInfo.append(html).closest('.panel-body').scrollTop(
+										$logInfo.outerHeight() + 2000);
+							});
+							socket.on('error', function(data) {
+								var html = '<p class="error"><b>[error]</b>' + data.message + '</p>';
+								$logInfo.append(html).closest('.panel-body').scrollTop(
+										$logInfo.outerHeight() + 2000);
+							});
+							/*
+							 * setInterval(function() {
+							 * $http.get('/data/log.json').success(
+							 * function(data) { var html = '', item; if
+							 * (data.result === 'success') { if
+							 * ($logInfo.length) { for (var
+							 * i=0,len=data.data.length; i<len; i++) { item =
+							 * data.data[i]; html += '<p class="'+ item.type +'"><b>['+
+							 * item.type +']</b>'+ item.value +'</p>'; }
+							 * $logInfo.append(html)
+							 * .closest('.panel-body').scrollTop($logInfo.outerHeight() +
+							 * 2000); html = ''; } else { $logInfo =
+							 * $('.log-info'); } } }); }, 500);
+							 * 
+							 */
 							// 清除日志
 							$rootScope.clearLog = function() {
-								$rootScope.infos = [];
+								$logInfo.html('');
 							};
 
-							$rootScope.databases = databases;// 数据库列表
-							$rootScope.servers = servers;// web服务器列表
+							$rootScope.databases = databases; // 数据库列表
+							$rootScope.servers = servers; // web服务器列表
 							$http.get("/install/sysConfig").success(function(res) {
 								var config_user = "";
 								var config_ps = "";
@@ -573,7 +595,7 @@ app
 						} ])
 		.filter(
 				'range',
-				function() {// 分页
+				function() { // 分页
 					return function(input, args) {
 						var len = input.length, page = args[0], pagesize = args[1], start = (page - 1)
 								* pagesize, end = start + pagesize, output;
@@ -653,7 +675,7 @@ app
 						'$location',
 						'$http',
 						function($scope, $rootScope, $location, $http) {
-							$scope.editedIndex = 0;// 保存当前被修改主机的索引
+							$scope.editedIndex = 0; // 保存当前被修改主机的索引
 							$scope.page = 1;
 							$scope.hostPag = {
 								pageSize : 10,
@@ -760,7 +782,7 @@ app
 							$scope.submitHost = function(modal) {
 								var ok = true, ip = $scope.addIp, field = $scope.addField, user = $scope.addUser, cmd = $scope.addCmd;
 								var useUnifyUser = this.useUnifyUser;
-								if (!ip.validity) {// 如果ip验证不通过
+								if (!ip.validity) { // 如果ip验证不通过
 									ok = false;
 									if (ip.val === '') {
 										verifyTextInputBlur(ip, false, {
@@ -774,7 +796,7 @@ app
 										});
 									}
 								}
-								if (!field.validity) {// 如果field验证不通过
+								if (!field.validity) { // 如果field验证不通过
 									ok = false;
 									verifySelect(field, false);
 								}
@@ -819,15 +841,15 @@ app
 											config : {
 												id : ip.val,
 												address : ip.val,
-												domains : [ field.val ],
+												domains : field.val,
 												globalUser : useUnifyUser,
 												user : user.val,
 												password : cmd.val
 											}
 										}
 									}).success(function(data, status) {
-
 										$(modal).modal('hide');
+										// $rootScope.hosts = data.data;
 									}).error(function(data, status) {
 
 									});
@@ -841,23 +863,23 @@ app
 								$('#addHostForm').find('.verifyShit').removeClass('verifyShit');
 								$('#addHostForm').find('.verifyGood').removeClass('verifyGood');
 
-								ip.val = '';// 重置IP的值
+								ip.val = ''; // 重置IP的值
 								ip.blank = false;
 								ip.mismatch = false;
 								ip.validity = false;
 								ip.verify = false;
 
-								field.val = '';// 重置field的值
+								field.val = ''; // 重置field的值
 								field.blank = false;
 								field.validity = false;
 
-								user.val = '';// 重置user的值
+								user.val = ''; // 重置user的值
 								user.blank = false;
 								user.mismatch = false;
 								user.validity = false;
 								user.verify = false;
 
-								cmd.val = '';// 重置command的值
+								cmd.val = ''; // 重置command的值
 								cmd.blank = false;
 								cmd.mismatch = false;
 								cmd.validity = false;
@@ -874,13 +896,13 @@ app
 							$scope.editHost = function(modal, index) {
 								var ip = $scope.editIp, field = $scope.editField, user = $scope.editUser, cmd = $scope.editCmd, host = $scope.hosts[index];
 
-								$scope.editedIndex = index;// 保存当前被修改主机的索引
+								$scope.editedIndex = index; // 保存当前被修改主机的索引
 								$('#editHostForm').find('.verifyShit').removeClass('verifyShit');
 								$('#editHostForm').find('.verifyGood').removeClass('verifyGood');
-								ip.val = host.ip;// 将主机的ip传递到表单
-								field.val = host.field;// 将主机的field传递到表单
-								user.val = host.user;// 将主机的user传递到表单
-								cmd.val = host.command;// 将主机的command传递到表单
+								ip.val = host.id; // 将主机的ip传递到表单
+								field.val = host.domains; // 将主机的field传递到表单
+								user.val = host.user; // 将主机的user传递到表单
+								cmd.val = host.password; // 将主机的command传递到表单
 								// 为了实现提交时代验证, 初始化validity为true
 								ip.validity = true;
 								field.validity = true;
@@ -897,7 +919,7 @@ app
 									url : "/install/checkConfig",
 									data : {
 										step : 0,
-										id : host.id										
+										id : host.id
 									}
 								}).success(function(data, status) {
 
@@ -939,8 +961,13 @@ app
 							 *            index [description]
 							 * @return {[type]} [description]
 							 */
-							$scope.deleteHost = function(index) {
-								var host = $rootScope.hosts[index];
+							$scope.deleteHost = function(modal, index) {
+								$scope.deleteHostIndex = index;
+								$(modal).modal('show');
+							};
+							$scope.doDelete = function(modal) {
+								$(modal).modal('hide');
+								var host = $rootScope.hosts[$scope.deleteHostIndex];
 								$http({
 									method : "post",
 									url : "/install/deleteConfig",
@@ -953,7 +980,7 @@ app
 								}).error(function(data, status) {
 
 								});
-							};
+							}
 
 							// 设置统一用户
 
@@ -1101,7 +1128,7 @@ app
 							$scope.submitDatabase = function(modal) {
 								var ok = true, id = $scope.addId, ip = $scope.addIp, port = $scope.addPort, user = $scope.addUser, cmd = $scope.addCmd;
 
-								if (!id.validity) {// 如果id验证不通过
+								if (!id.validity) { // 如果id验证不通过
 									ok = false;
 									if (id.val === '') {
 										verifyTextInputBlur(id, false, {
@@ -1116,7 +1143,7 @@ app
 									}
 								}
 
-								if (!ip.validity) {// 如果ip验证不通过
+								if (!ip.validity) { // 如果ip验证不通过
 									ok = false;
 									if (ip.val === '') {
 										verifyTextInputBlur(ip, false, {
@@ -1130,7 +1157,7 @@ app
 										});
 									}
 								}
-								if (!port.validity) {// 如果port验证不通过
+								if (!port.validity) { // 如果port验证不通过
 									ok = false;
 									if (port.val === '') {
 										verifyTextInputBlur(port, false, {
@@ -1204,31 +1231,31 @@ app
 								$('#editDatabaseForm').find('.verifyGood')
 										.removeClass('verifyGood');
 
-								id.val = '';// 重置Id的值
+								id.val = ''; // 重置Id的值
 								id.blank = false;
 								id.mismatch = false;
 								id.validity = false;
 								id.verify = false;
 
-								ip.val = '';// 重置IP的值
+								ip.val = ''; // 重置IP的值
 								ip.blank = false;
 								ip.mismatch = false;
 								ip.validity = false;
 								ip.verify = false;
 
-								port.val = '';// 重置port的值
+								port.val = ''; // 重置port的值
 								port.blank = false;
 								port.mismatch = false;
 								port.validity = false;
 								port.verify = false;
 
-								user.val = '';// 重置user的值
+								user.val = ''; // 重置user的值
 								user.blank = false;
 								user.mismatch = false;
 								user.validity = false;
 								user.verify = false;
 
-								cmd.val = '';// 重置command的值
+								cmd.val = ''; // 重置command的值
 								cmd.blank = false;
 								cmd.mismatch = false;
 								cmd.validity = false;
@@ -1245,16 +1272,16 @@ app
 							$scope.editDatabase = function(modal, index) {
 								var id = $scope.editId, ip = $scope.editIp, port = $scope.editPort, user = $scope.editUser, cmd = $scope.editCmd, database = $rootScope.databases[index];
 
-								$scope.editedIndex = index;// 保存当前被修改主机的索引
+								$scope.editedIndex = index; // 保存当前被修改主机的索引
 								$('#editDatabaseForm').find('.verifyShit')
 										.removeClass('verifyShit');
 								$('#editDatabaseForm').find('.verifyGood')
 										.removeClass('verifyGood');
-								id.val = database.id;// 将主机的id传递到表单
-								ip.val = database.ip;// 将主机的ip传递到表单
-								port.val = database.port;// 将主机的field传递到表单
-								user.val = database.user;// 将主机的user传递到表单
-								cmd.val = database.command;// 将主机的command传递到表单
+								id.val = database.id; // 将主机的id传递到表单
+								ip.val = database.ip; // 将主机的ip传递到表单
+								port.val = database.port; // 将主机的field传递到表单
+								user.val = database.user; // 将主机的user传递到表单
+								cmd.val = database.command; // 将主机的command传递到表单
 								// 为了实现提交时代验证, 初始化validity为true
 								id.validity = true;
 								ip.validity = true;
@@ -1471,7 +1498,7 @@ app
 							$scope.submitServer = function(modal) {
 								var ok = true, id = $scope.addId, ip = $scope.addIp, port = $scope.addPort, field = $scope.addField, user = $scope.addUser, cmd = $scope.addCmd;
 
-								if (!id.validity) {// 如果id验证不通过
+								if (!id.validity) { // 如果id验证不通过
 									ok = false;
 									if (id.val === '') {
 										verifyTextInputBlur(id, false, {
@@ -1485,7 +1512,7 @@ app
 										});
 									}
 								}
-								if (!ip.validity) {// 如果ip验证不通过
+								if (!ip.validity) { // 如果ip验证不通过
 									ok = false;
 									if (ip.val === '') {
 										verifyTextInputBlur(ip, false, {
@@ -1499,7 +1526,7 @@ app
 										});
 									}
 								}
-								if (!port.validity) {// 如果port验证不通过
+								if (!port.validity) { // 如果port验证不通过
 									ok = false;
 									if (port.val === '') {
 										verifyTextInputBlur(port, false, {
@@ -1513,7 +1540,7 @@ app
 										});
 									}
 								}
-								if (!field.validity) {// 如果field验证不通过
+								if (!field.validity) { // 如果field验证不通过
 									ok = false;
 									verifySelect(field, false);
 								}
@@ -1577,35 +1604,35 @@ app
 								$('#editServerForm').find('.verifyShit').removeClass('verifyShit');
 								$('#editServerForm').find('.verifyGood').removeClass('verifyGood');
 
-								id.val = '';// 重置Id的值
+								id.val = ''; // 重置Id的值
 								id.blank = false;
 								id.mismatch = false;
 								id.validity = false;
 								id.verify = false;
 
-								ip.val = '';// 重置IP的值
+								ip.val = ''; // 重置IP的值
 								ip.blank = false;
 								ip.mismatch = false;
 								ip.validity = false;
 								ip.verify = false;
 
-								port.val = '';// 重置port的值
+								port.val = ''; // 重置port的值
 								port.blank = false;
 								port.mismatch = false;
 								port.validity = false;
 								port.verify = false;
 
-								field.val = '';// 重置field的值
+								field.val = ''; // 重置field的值
 								field.blank = false;
 								field.verify = false;
 
-								user.val = '';// 重置user的值
+								user.val = ''; // 重置user的值
 								user.blank = false;
 								user.mismatch = false;
 								user.validity = false;
 								user.verify = false;
 
-								cmd.val = '';// 重置command的值
+								cmd.val = ''; // 重置command的值
 								cmd.blank = false;
 								cmd.mismatch = false;
 								cmd.validity = false;
@@ -1622,15 +1649,15 @@ app
 							$scope.editServer = function(modal, index) {
 								var id = $scope.editId, ip = $scope.editIp, port = $scope.editPort, field = $scope.editField, user = $scope.editUser, cmd = $scope.editCmd, server = $rootScope.servers[index];
 
-								$scope.editedIndex = index;// 保存当前被修改主机的索引
+								$scope.editedIndex = index; // 保存当前被修改主机的索引
 								$('#editServerForm').find('.verifyShit').removeClass('verifyShit');
 								$('#editServerForm').find('.verifyGood').removeClass('verifyGood');
-								id.val = server.id;// 将主机的id传递到表单
-								ip.val = server.ip;// 将主机的ip传递到表单
-								port.val = server.port;// 将主机的field传递到表单
-								field.val = server.field;// 将主机的fieldr传递到表单
-								user.val = server.user;// 将主机的user传递到表单
-								cmd.val = server.command;// 将主机的command传递到表单
+								id.val = server.id; // 将主机的id传递到表单
+								ip.val = server.ip; // 将主机的ip传递到表单
+								port.val = server.port; // 将主机的field传递到表单
+								field.val = server.field; // 将主机的fieldr传递到表单
+								user.val = server.user; // 将主机的user传递到表单
+								cmd.val = server.command; // 将主机的command传递到表单
 								// 为了实现提交时代验证, 初始化validity为true
 								id.validity = true;
 								ip.validity = true;

@@ -31,8 +31,8 @@ logger.prototype.error = function(str, e) {
 	console.error(str);
 	console.error(e);
 	if (this.outer) {
-		this.outer.emit("info", {
-			message : str
+		this.outer.emit("error", {
+			message : str.toString()
 		});
 	}
 };
